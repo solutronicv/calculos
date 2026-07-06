@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Etiquetas para convertir en App (PWA) -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1e3a8a">
+    <title>Solutronic - Ingeniería</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.2rem;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem; /* Evita zoom automático en iOS */
+            outline: none;
+        }
+        .result-badge {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            border-radius: 0.25rem;
+        }
+        /* Estilo para botones táctiles */
+        button:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="p-2 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Encabezado compacto para móvil -->
+        <div class="flex items-center justify-between mb-4 bg-blue-900 text-white p-4 rounded-xl shadow-lg">
+            <div>
+                <h1 class="text-xl font-bold uppercase tracking-wider">Solutronic</h1>
+                <p class="text-blue-200 text-xs">Ingeniería Eléctrica</p>
+            </div>
+            <div id="system-label" class="bg-blue-700 px-2 py-1 rounded text-[10px] font-bold uppercase">Trifásico</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <!-- Configuración -->
+            <div class="md:col-span-1 space-y-4">
+                <div class="glass-card p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-bold">Sistema: <span id="phase-text" class="text-blue-600">3Φ</span></span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="phase-toggle" class="sr-only peer" onchange="updateSystem()" checked>
+                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mb-4">
+                        <div class="input-group">
+                            <label>% Caída</label>
+                            <input type="number" id="caida-max" class="input-field" value="3" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label>Dist. (m)</label>
+                            <input type="number" id="distancia" class="input-field" value="10">
+                        </div>
+                    </div>
+
+                    <button onclick="calculate()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition active:bg-blue-800">
+                        CALCULAR
+                    </button>
+                </div>
+            </div>
+
+            <!-- Entradas de Datos -->
+            <div class="md:col-span-3 glass-card p-4">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                    <h3 class="section-title text-sm col-span-2 border-b pb-1 mb-1">Parámetros de Placa</h3>
+                    <div class="input-group"><label>Voltaje (V)</label><input type="number" id="voltaje" class="input-field" placeholder="208"></div>
+                    <div class="input-group"><label>Corriente (A)</label><input type="number" id="corriente" class="input-field" placeholder="A"></div>
+                    <div class="input-group"><label>Potencia (kW)</label><input type="number" id="potencia" class="input-field" placeholder="kW"></div>
+                    <div class="input-group"><label>FP (cos φ)</label><input type="number" id="fp" class="input-field" step="0.01" placeholder="0.90"></div>
+                    <div class="input-group"><label>Aparente (kVA)</label><input type="number" id="aparente" class="input-field" placeholder="kVA"></div>
+                    <div class="input-group"><label>Motor (HP)</label><input type="number" id="hp" class="input-field" placeholder="HP"></div>
+                </div>
+
+                <div id="error-msg" class="hidden mt-4 p-3 bg-red-100 text-red-700 rounded text-xs font-bold"></div>
+
+                <div id="results-area" class="mt-4 border-t pt-4 hidden">
+                    <h3 class="font-bold text-xs text-blue-900 uppercase tracking-widest mb-2">Resultados de Ingeniería</h3>
+                    <div id="results-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tabla comercial (Sin 3 y 1 AWG)
+        const tablaConductores = [
+            { id: "14 AWG", amp: 15, res: 10.17 },
+            { id: "12 AWG", amp: 20, res: 6.56 },
+            { id: "10 AWG", amp: 30, res: 3.94 },
+            { id: "8 AWG", amp: 50, res: 2.56 },
+            { id: "6 AWG", amp: 65, res: 1.61 },
+            { id: "4 AWG", amp: 85, res: 1.02 },
+            { id: "2 AWG", amp: 115, res: 0.64 },
+            { id: "1/0 AWG", amp: 150, res: 0.40 },
+            { id: "2/0 AWG", amp: 175, res: 0.32 },
+            { id: "3/0 AWG", amp: 200, res: 0.25 },
+            { id: "4/0 AWG", amp: 230, res: 0.20 },
+            { id: "250 MCM", amp: 255, res: 0.17 },
+            { id: "300 MCM", amp: 285, res: 0.14 },
+            { id: "350 MCM", amp: 310, res: 0.12 },
+            { id: "400 MCM", amp: 335, res: 0.11 },
+            { id: "500 MCM", amp: 380, res: 0.09 }
+        ];
+
+        function updateSystem() {
+            const isChecked = document.getElementById('phase-toggle').checked;
+            document.getElementById('system-label').innerText = isChecked ? 'Trifásico' : 'Monofásico';
+            document.getElementById('phase-text').innerText = isChecked ? '3Φ' : '1Φ';
+        }
+
+        function clearResults() {
+            document.getElementById('results-area').classList.add('hidden');
+            document.getElementById('error-msg').classList.add('hidden');
+            document.getElementById('results-list').innerHTML = '';
+        }
+
+        function showResult(label, value, unit) {
+            const resultsArea = document.getElementById('results-area');
+            const resultsList = document.getElementById('results-list');
+            resultsArea.classList.remove('hidden');
+            const div = document.createElement('div');
+            div.className = 'result-badge flex justify-between items-center';
+            div.innerHTML = `<span class="text-[10px] uppercase text-gray-500 font-bold">${label}</span> <span class="font-bold text-blue-900">${value} ${unit}</span>`;
+            resultsList.appendChild(div);
+        }
+
+        function calculate() {
+            clearResults();
+            const errorDiv = document.getElementById('error-msg');
+
+            let v = parseFloat(document.getElementById('voltaje').value);
+            let i = parseFloat(document.getElementById('corriente').value);
+            let pkW = parseFloat(document.getElementById('potencia').value);
+            let fp = parseFloat(document.getElementById('fp').value);
+            let skVA = parseFloat(document.getElementById('aparente').value);
+            let hp = parseFloat(document.getElementById('hp').value);
+            let dist = parseFloat(document.getElementById('distancia').value) || 0;
+            let cMax = parseFloat(document.getElementById('caida-max').value) || 3;
+
+            const isTrifasico = document.getElementById('phase-toggle').checked;
+            const k = isTrifasico ? Math.sqrt(3) : 1;
+
+            if (!isNaN(hp) && isNaN(pkW)) pkW = (hp * 0.746);
+            if (!isNaN(pkW) && !isNaN(skVA) && isNaN(fp)) fp = pkW / skVA;
+            if (isNaN(fp)) fp = 0.90;
+
+            if (isNaN(i)) {
+                if (!isNaN(skVA) && !isNaN(v)) i = (skVA * 1000) / (v * k);
+                else if (!isNaN(pkW) && !isNaN(v)) i = (pkW * 1000) / (v * k * fp);
+            }
+
+            if (isNaN(v) || isNaN(i)) {
+                errorDiv.innerText = "Error: Ingrese Voltaje y Corriente (o Potencia).";
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            let s_calc = (v * i * k) / 1000;
+            let p_calc = s_calc * fp;
+            let q_calc = Math.sqrt(Math.pow(s_calc, 2) - Math.pow(p_calc, 2));
+            let hp_calc = p_calc / 0.746;
+
+            if (document.getElementById('corriente').value === "") showResult("Corriente", i.toFixed(2), "A");
+            if (document.getElementById('potencia').value === "") showResult("Potencia Activa", p_calc.toFixed(2), "kW");
+            if (document.getElementById('aparente').value === "") showResult("Potencia Aparente", s_calc.toFixed(2), "kVA");
+            showResult("Potencia Reactiva", q_calc.toFixed(2), "kVAR");
+            if (document.getElementById('hp').value === "") showResult("Potencia Motor", hp_calc.toFixed(1), "HP");
+            if (document.getElementById('fp').value === "") showResult("Factor Potencia", fp.toFixed(2), "");
+
+            let cablesEnParalelo = 1;
+            let conductorElegido = null;
+            let porcCaidaFinal = 0;
+
+            const ampacidadMaxima = tablaConductores[tablaConductores.length - 1].amp;
+            if (i > ampacidadMaxima) cablesEnParalelo = Math.ceil(i / ampacidadMaxima);
+
+            let encontrado = false;
+            while (!encontrado && cablesEnParalelo <= 12) {
+                const corrientePorFase = i / cablesEnParalelo;
+                for (let cond of tablaConductores) {
+                    if (corrientePorFase > cond.amp) continue;
+                    const factorK = isTrifasico ? Math.sqrt(3) : 2;
+                    const R_eq = cond.res / cablesEnParalelo;
+                    const deltaV = (factorK * i * dist * R_eq) / 1000;
+                    const porcCaida = (deltaV / v) * 100;
+                    if (porcCaida <= cMax) {
+                        conductorElegido = cond;
+                        porcCaidaFinal = porcCaida;
+                        encontrado = true;
+                        break;
+                    }
+                }
+                if (!encontrado) cablesEnParalelo++;
+            }
+
+            if (encontrado) {
+                let sugerencia = cablesEnParalelo > 1 ? `${conductorElegido.id} x ${cablesEnParalelo}` : conductorElegido.id;
+                showResult("Conductor", sugerencia, "(THW 75°C)");
+                showResult("Caída Real", porcCaidaFinal.toFixed(2), "%");
+            } else {
+                errorDiv.innerText = "Sin solución técnica viable.";
+                errorDiv.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
