@@ -3,235 +3,878 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Etiquetas para convertir en App (PWA) -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#1e3a8a">
-    <title>Solutronic - Ingeniería</title>
+    <title>Solutronic Suite - Ingeniería Eléctrica</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body {
-            background-color: #f3f4f6;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; -webkit-tap-highlight-color: transparent; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-card { background: #ffffff; border-radius: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; }
+        .input-premium { width: 100%; padding: 0.75rem; background-color: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 0.75rem; font-size: 0.875rem; font-weight: 700; color: #1e3a8a; transition: all 0.2s; outline: none; -webkit-appearance: none; }
+        .input-premium:focus { border-color: #2563eb; background-color: #ffffff; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        .label-premium { display: block; font-size: 0.7rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
+        .section-title { font-weight: 800; color: #1e3a8a; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem; }
+        
+        /* CSS RESPONSIVO PARA LOS MENÚS DESPLEGABLES */
+        .nav-category { position: relative; display: inline-block; }
+        .nav-btn { flex-shrink: 0; padding: 0.6rem 1.2rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.025em; transition: all 0.3s ease; background-color: transparent; color: #475569; border: 1px solid transparent; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; }
+        .nav-btn:hover { background-color: #f1f5f9; color: #1d4ed8; }
+        .nav-btn.active-cat { background-color: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; box-shadow: 0 2px 4px rgba(37,99,235,0.1); }
+        
+        .dropdown-menu { 
+            position: absolute; left: 0; top: 100%; margin-top: 0.4rem; width: 220px; 
+            background-color: #ffffff; border-radius: 1rem; 
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); 
+            border: 1px solid #e2e8f0; opacity: 0; visibility: hidden; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; transform: translateY(-10px); 
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        .dropdown-menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+        
+        .dropdown-item { display: block; padding: 0.8rem 1.2rem; font-size: 0.8rem; font-weight: 700; color: #475569; transition: all 0.2s; border-left: 3px solid transparent; }
+        .dropdown-item:hover { background-color: #f8fafc; color: #1d4ed8; padding-left: 1.5rem; border-left-color: #3b82f6; }
+        .dropdown-item.active-item { background-color: #eff6ff; color: #1d4ed8; border-left-color: #1d4ed8; }
+        
+        .dropdown-menu .dropdown-item:first-child { border-top-left-radius: 1rem; border-top-right-radius: 1rem; }
+        .dropdown-menu .dropdown-item:last-child { border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem; }
+
+        @media (max-width: 768px) {
+            .nav-category { flex: 1 1 45%; } 
+            .nav-btn { width: 100%; font-size: 0.65rem; padding: 0.6rem 0.2rem; }
+            .dropdown-menu { 
+                left: 50%; transform: translateX(-50%) translateY(-10px); 
+                width: 90vw; max-width: 300px; 
+            }
+            .dropdown-menu.show { transform: translateX(-50%) translateY(0); }
+            .dropdown-item { padding: 1rem 1.2rem; font-size: 0.85rem; } 
         }
-        .input-group label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.2rem;
-        }
-        .input-field {
-            width: 100%;
-            padding: 0.6rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            font-size: 1rem; /* Evita zoom automático en iOS */
-            outline: none;
-        }
-        .result-badge {
-            background: #eff6ff;
-            border-left: 4px solid #2563eb;
-            padding: 0.75rem;
-            margin-top: 0.5rem;
-            border-radius: 0.25rem;
-        }
-        /* Estilo para botones táctiles */
-        button:active {
-            transform: scale(0.98);
-        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="p-2 md:p-8">
+<body class="text-slate-800 pb-12">
 
-    <div class="max-w-5xl mx-auto">
-        <!-- Encabezado compacto para móvil -->
-        <div class="flex items-center justify-between mb-4 bg-blue-900 text-white p-4 rounded-xl shadow-lg">
-            <div>
-                <h1 class="text-xl font-bold uppercase tracking-wider">Solutronic</h1>
-                <p class="text-blue-200 text-xs">Ingeniería Eléctrica</p>
-            </div>
-            <div id="system-label" class="bg-blue-700 px-2 py-1 rounded text-[10px] font-bold uppercase">Trifásico</div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <!-- Configuración -->
-            <div class="md:col-span-1 space-y-4">
-                <div class="glass-card p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-sm font-bold">Sistema: <span id="phase-text" class="text-blue-600">3Φ</span></span>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="phase-toggle" class="sr-only peer" onchange="updateSystem()" checked>
-                            <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                        </label>
+    <nav class="bg-[#1e3a8a] text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3">
+                    <span class="text-xl md:text-2xl font-black italic tracking-wider">SOLUTRONIC<span class="text-blue-300 font-bold ml-3 text-xs md:text-sm not-italic border-l-2 border-blue-700 pl-3 hidden sm:inline">Suite de Ingeniería</span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="hidden md:flex text-[9px] font-bold text-blue-200 uppercase tracking-widest items-center gap-2 mr-4">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Normativa NEC / IEC
                     </div>
-
-                    <div class="grid grid-cols-2 gap-2 mb-4">
-                        <div class="input-group">
-                            <label>% Caída</label>
-                            <input type="number" id="caida-max" class="input-field" value="3" step="0.1">
-                        </div>
-                        <div class="input-group">
-                            <label>Dist. (m)</label>
-                            <input type="number" id="distancia" class="input-field" value="10">
-                        </div>
-                    </div>
-
-                    <button onclick="calculate()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition active:bg-blue-800">
-                        CALCULAR
+                    <button onclick="exportarReporteUniversal(event)" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] md:text-xs font-bold py-2 px-3 md:px-4 rounded-full transition shadow-lg active:scale-95">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        <span class="hidden md:inline">EXPORTAR REPORTE</span>
                     </button>
                 </div>
             </div>
-
-            <!-- Entradas de Datos -->
-            <div class="md:col-span-3 glass-card p-4">
-                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
-                    <h3 class="section-title text-sm col-span-2 border-b pb-1 mb-1">Parámetros de Placa</h3>
-                    <div class="input-group"><label>Voltaje (V)</label><input type="number" id="voltaje" class="input-field" placeholder="208"></div>
-                    <div class="input-group"><label>Corriente (A)</label><input type="number" id="corriente" class="input-field" placeholder="A"></div>
-                    <div class="input-group"><label>Potencia (kW)</label><input type="number" id="potencia" class="input-field" placeholder="kW"></div>
-                    <div class="input-group"><label>FP (cos φ)</label><input type="number" id="fp" class="input-field" step="0.01" placeholder="0.90"></div>
-                    <div class="input-group"><label>Aparente (kVA)</label><input type="number" id="aparente" class="input-field" placeholder="kVA"></div>
-                    <div class="input-group"><label>Motor (HP)</label><input type="number" id="hp" class="input-field" placeholder="HP"></div>
+        </div>
+        <div class="bg-white border-b shadow-sm w-full relative z-40">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4 items-center">
+                <div class="nav-category">
+                    <button class="nav-btn active-cat" id="cat-cables" onclick="toggleDropdown('drop-cables', event)">🔌 Cables & Ductos <span class="text-[10px] opacity-50">▼</span></button>
+                    <div id="drop-cables" class="dropdown-menu">
+                        <a href="#" onclick="switchTab('tab-conductores', this, 'cat-cables')" class="dropdown-item active-item">Corriente y Conductor</a>
+                        <a href="#" onclick="switchTab('tab-bandejas', this, 'cat-cables')" class="dropdown-item">Bandejas Portacables</a>
+                        <a href="#" onclick="switchTab('tab-tuberias', this, 'cat-cables')" class="dropdown-item">Tuberías Conduit</a>
+                    </div>
                 </div>
-
-                <div id="error-msg" class="hidden mt-4 p-3 bg-red-100 text-red-700 rounded text-xs font-bold"></div>
-
-                <div id="results-area" class="mt-4 border-t pt-4 hidden">
-                    <h3 class="font-bold text-xs text-blue-900 uppercase tracking-widest mb-2">Resultados de Ingeniería</h3>
-                    <div id="results-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+                <div class="nav-category">
+                    <button class="nav-btn" id="cat-calidad" onclick="toggleDropdown('drop-calidad', event)">⚡ Calidad Energía <span class="text-[10px] opacity-50">▼</span></button>
+                    <div id="drop-calidad" class="dropdown-menu">
+                        <a href="#" onclick="switchTab('tab-capacitores', this, 'cat-calidad')" class="dropdown-item">Bancos de Capacitores</a>
+                        <a href="#" onclick="switchTab('tab-armonicos', this, 'cat-calidad')" class="dropdown-item">Filtros Armónicos (AFQ)</a>
+                    </div>
+                </div>
+                <div class="nav-category">
+                    <button class="nav-btn" id="cat-potencia" onclick="toggleDropdown('drop-potencia', event)">🛡️ Potencia & Prot. <span class="text-[10px] opacity-50">▼</span></button>
+                    <div id="drop-potencia" class="dropdown-menu">
+                        <a href="#" onclick="switchTab('tab-cortocircuito', this, 'cat-potencia')" class="dropdown-item">Estudio Cortocircuito</a>
+                        <a href="#" onclick="switchTab('tab-barras', this, 'cat-potencia')" class="dropdown-item">Dimensionamiento Barras</a>
+                        <a href="#" onclick="switchTab('tab-protecciones', this, 'cat-potencia')" class="dropdown-item">Puesta a Tierra</a>
+                    </div>
+                </div>
+                <div class="nav-category">
+                    <button class="nav-btn" id="cat-cargas" onclick="toggleDropdown('drop-cargas', event)">⚙️ Cargas & Respaldo <span class="text-[10px] opacity-50">▼</span></button>
+                    <div id="drop-cargas" class="dropdown-menu">
+                        <a href="#" onclick="switchTab('tab-motores', this, 'cat-cargas')" class="dropdown-item">Arranque de Motores</a>
+                        <a href="#" onclick="switchTab('tab-respaldo', this, 'cat-cargas')" class="dropdown-item">Sistemas UPS</a>
+                        <a href="#" onclick="switchTab('tab-iluminacion', this, 'cat-cargas')" class="dropdown-item">Iluminación</a>
+                    </div>
                 </div>
             </div>
         </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-4 md:p-6 mt-2 space-y-4">
+
+        <div id="tab-conductores" class="tab-content animate-[fadeIn_0.3s_ease-in-out]">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Cálculo de Corriente y Conductor</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: NEC 310.15 / IEC 60364-5-52</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6" id="conductores-form-container">
+                <div class="md:col-span-1 space-y-4">
+                    <div class="glass-card p-5">
+                        <h2 class="section-title">Parámetros del Sistema</h2>
+                        <div class="flex justify-between items-center mb-4 pb-4 border-b">
+                            <span class="text-sm font-bold text-slate-700">Fases: <span id="phase-text" class="text-blue-600 font-black">3Φ</span></span>
+                            <label class="relative inline-flex items-center cursor-pointer no-print">
+                                <input type="checkbox" id="phase-toggle" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+                            </label>
+                        </div>
+                        <div class="space-y-4">
+                            <div><label class="label-premium">Aislamiento</label>
+                                <select id="tipo-conductor" class="input-premium"><option value="a75">THW / PVC (75°C)</option><option value="a90">THHN / XLPE (90°C)</option><option value="a105">Especial (105°C)</option></select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 items-end">
+                                <div class="w-full"><label class="label-premium">% Caída Max</label><input type="number" id="caida-max" class="input-premium" value="3" step="0.1"></div>
+                                <div class="w-full"><label class="label-premium">Dist. (m)</label><input type="number" id="distancia" class="input-premium" value="10"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-3 glass-card p-5">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <h3 class="section-title col-span-full">Carga a Alimentar</h3>
+                        <div><label class="label-premium">Voltaje (V)</label><input type="text" inputmode="decimal" id="voltaje-caida" class="input-premium" placeholder="208"></div>
+                        <div><label class="label-premium">Corriente (A)</label><input type="text" inputmode="decimal" id="corriente-caida" class="input-premium" placeholder="Opcional"></div>
+                        <div>
+                            <label class="label-premium flex justify-between items-center">Potencia 
+                                <select id="unidad-potencia-caida" class="bg-transparent text-blue-700 font-black outline-none ml-2 cursor-pointer no-print-bg">
+                                    <option value="kw">kW</option><option value="kva">kVA</option><option value="hp">Hp</option>
+                                </select>
+                            </label>
+                            <input type="text" inputmode="decimal" id="potencia-caida" class="input-premium" placeholder="Valor">
+                        </div>
+                        <div id="wrapper-fp-caida"><label class="label-premium">FP (cos φ)</label><input type="text" inputmode="decimal" id="fp-caida" class="input-premium" value="0.90"></div>
+                        <h3 class="section-title col-span-full mt-2 text-amber-600">Selección Manual (Opcional)</h3>
+                        <div class="md:col-span-2">
+                            <label class="label-premium">Calibre Manual (AWG / mm²)</label>
+                            <select id="calibre-manual" class="input-premium text-blue-700 font-bold"></select>
+                        </div>
+                        <div><label class="label-premium">Paralelos</label><select id="num-paralelos" class="input-premium"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div>
+                    </div>
+                    
+                    <div id="error-msg-caida" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-xs font-bold border border-red-200 no-print"></div>
+                    <div id="results-area-caida" class="mt-6 border-t border-slate-200 pt-4 hidden">
+                        <div id="results-list-caida" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-bandejas" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Dimensionamiento de Bandejas Portacables</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: NEC 392 (40% Fill Ratio)</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div class="md:col-span-5 glass-card p-5">
+                    <h2 class="section-title flex justify-between items-center">Inventario de Cables (Multipolares)</h2>
+                    <div class="flex items-end gap-2 mb-4">
+                        <div class="flex-grow"><label class="label-premium">Calibre</label><select id="tr-cable-size" class="input-premium py-2 text-sm" onchange="calcTray()"></select></div>
+                        <div><label class="label-premium">Cant.</label><input type="number" id="tr-cable-qty" class="input-premium py-2 text-sm w-20 text-center" value="1" min="1"></div>
+                        <button onclick="addTrayCable()" class="bg-[#1e3a8a] text-white font-bold h-[42px] px-4 rounded-xl hover:bg-blue-800 transition active:scale-95 no-print">+</button>
+                    </div>
+                    <div id="tray-list" class="space-y-2 min-h-[150px] max-h-[300px] overflow-y-auto pr-2"></div>
+                </div>
+                <div class="md:col-span-7 glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h2 class="section-title">Resultados de Llenado</h2>
+                        <div class="grid grid-cols-2 gap-4 mt-4">
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                                <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Área Total Ocupada</p>
+                                <p class="text-2xl font-black text-slate-800 mt-1"><span id="res-tr-area">0</span> <span class="text-sm">mm²</span></p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center">
+                                <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Peso Estimado</p>
+                                <p class="text-2xl font-black text-slate-800 mt-1"><span id="res-tr-weight">0</span> <span class="text-sm">kg/m</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-[#1e3a8a] rounded-2xl p-6 text-white shadow-md mt-6 report-keep-bg print-bg-blue">
+                        <p class="text-[11px] uppercase font-black tracking-widest text-blue-200 text-center mb-4">Bandeja Sugerida (Fondo Sólido / Escalerilla)</p>
+                        <div class="flex justify-center items-end gap-6 text-center">
+                            <div><p class="text-[10px] uppercase text-blue-300">Ancho Comercial</p><p class="text-4xl font-black text-white"><span id="res-tr-width">100</span>mm</p><p class="text-xs text-blue-200">~<span id="res-tr-width-in">4</span>"</p></div>
+                            <div class="text-3xl font-light text-blue-400">×</div>
+                            <div><p class="text-[10px] uppercase text-blue-300">Alto Útil</p><p class="text-4xl font-black text-white">50mm</p><p class="text-xs text-blue-200">~2"</p></div>
+                        </div>
+                        <p class="text-center text-[10px] text-blue-200 mt-4 border-t border-blue-700 pt-3">Basado en un factor de llenado máximo estricto del 40%.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-tuberias" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]" oninput="calcTuberia()" onchange="calcTuberia()">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Cálculo de Tuberías Conduit</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: NEC Chapter 9 (40% Fill Ratio)</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-5">
+                    <h2 class="section-title">Datos del Conductor y Ducto</h2>
+                    <div class="space-y-4">
+                        <div><label class="label-premium">Tipo de Tubería</label><select id="conduitType" class="input-premium"><option value="EMT" selected>EMT (Acero)</option><option value="PVC">PVC (No Metálico)</option></select></div>
+                        <div><label class="label-premium">Diámetro Comercial</label><select id="conduitSize" class="input-premium"></select></div>
+                        <div><label class="label-premium">Calibre Conductor (AWG/mm²)</label><select id="wireSize" class="input-premium"></select></div>
+                    </div>
+                </div>
+                <div class="glass-card p-0 overflow-hidden flex flex-col border-2 border-[#1e3a8a]">
+                    <div class="bg-[#1e3a8a] p-3 text-white text-center"><span class="text-xs font-bold uppercase tracking-widest">Capacidad Máxima Permitida</span></div>
+                    <div class="p-8 flex-grow flex flex-col items-center justify-center bg-slate-50">
+                        <div id="resultCount-tuberia" class="text-9xl font-black text-[#60a5fa]">0</div>
+                        <p class="text-sm font-bold text-slate-400 mt-2 uppercase tracking-widest">Cables en Tubería</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-capacitores" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]" oninput="calculateTheory()" onchange="calculateTheory()">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Bancos de Capacitores y Pasos</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: NEC 460 / IEC 60831</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <aside class="lg:col-span-4 space-y-4">
+                    <div class="glass-card p-5">
+                        <h2 class="section-title">Análisis de Carga Reactiva</h2>
+                        <div class="space-y-4 mb-4">
+                            <div class="grid grid-cols-2 gap-3 items-end">
+                                <div class="w-full"><label class="label-premium">Tensión (V)</label><input type="text" inputmode="decimal" id="voltage-cap" class="input-premium" value="480"></div>
+                                <div class="w-full"><label class="label-premium">Frecuencia</label><input type="text" inputmode="decimal" id="freq-cap" class="input-premium" value="60"></div>
+                            </div>
+                            <div class="p-3 bg-indigo-50 border border-indigo-100 rounded-xl report-keep-bg">
+                                <label class="label-premium text-indigo-800">Directo: kVAR a Compensar</label>
+                                <input type="text" inputmode="decimal" id="manual-kvar-cap" class="input-premium bg-white text-lg font-bold" placeholder="Ej: 50">
+                            </div>
+                            <div class="relative py-2"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div><div class="relative flex justify-center"><span class="px-2 bg-white text-[10px] text-slate-400 font-bold uppercase">O FP</span></div></div>
+                            <div id="fp-calc-group" class="space-y-3">
+                                <div><label class="label-premium">Potencia Activa (kW)</label><input type="text" inputmode="decimal" id="active-power-cap" class="input-premium"></div>
+                                <div class="grid grid-cols-2 gap-3 items-end">
+                                    <div class="w-full"><label class="label-premium">FP Actual</label><input type="text" inputmode="decimal" id="fp-actual-cap" class="input-premium" value="0.75"></div>
+                                    <div class="w-full"><label class="label-premium">FP Objetivo</label><input type="text" inputmode="decimal" id="fp-target-cap" class="input-premium" value="0.96"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-blue-600 rounded-2xl text-white shadow-md text-center print-bg-blue report-keep-bg">
+                            <p class="text-[10px] font-bold text-blue-200 uppercase mb-1 report-text-blue">KVAR Requeridos</p>
+                            <p class="text-3xl font-black mb-2"><span id="theory-kvar">0.0</span></p>
+                            <div class="flex justify-between border-t border-blue-500 pt-2 pb-2">
+                                <div class="text-left"><p class="text-[9px] uppercase">Amp. x Fase</p><p class="font-bold"><span id="teoric-amps">0.0 A</span></p></div>
+                                <div class="text-right"><p class="text-[9px] text-amber-300 uppercase report-text-amber">Breaker Dedicado</p><p class="font-bold text-amber-400 report-text-amber-dark"><span id="main-breaker">0 A</span></p></div>
+                            </div>
+                            <div class="flex flex-col border-t border-blue-500 pt-2 text-left gap-1">
+                                <div class="flex justify-between items-center"><p class="text-[8px] font-bold text-emerald-300 uppercase report-text-emerald">Cable 75°C Mínimo:</p><p class="text-[10px] leading-tight font-bold" id="cap-cable-75">-</p></div>
+                                <div class="flex justify-between items-center"><p class="text-[8px] font-bold text-indigo-300 uppercase report-text-indigo">Cable 90°C Mínimo:</p><p class="text-[10px] leading-tight font-bold" id="cap-cable-90">-</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+                <main class="lg:col-span-8">
+                    <div class="glass-card p-5 h-full">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="section-title mb-0">Configuración Física (Circutor)</h3>
+                            <div class="flex items-center gap-3">
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 flex items-center gap-2">
+                                    SECUENCIA: <span id="step-sequence-top" class="text-sm tracking-widest font-black">---</span> 
+                                </span>
+                                <button onclick="addStep()" class="px-4 py-2 bg-slate-800 text-white text-xs font-bold rounded-lg shadow-sm active:scale-95 no-print">+ Agregar Escalón</button>
+                            </div>
+                        </div>
+                        <div id="steps-container" class="space-y-3 mb-6 min-h-[150px] p-4 bg-slate-50 rounded-xl border border-dashed border-slate-300 report-keep-bg"></div>
+                        <div class="grid grid-cols-2 gap-2 border-t border-slate-200 pt-4 text-center">
+                            <div class="border-r border-slate-200"><p class="text-[9px] font-bold text-slate-400 uppercase">Amp. Selección</p><p class="text-xl font-black text-slate-800"><span id="total-selected-amps">0.0</span> A</p></div>
+                            <div><p class="text-[9px] font-bold text-slate-400 uppercase">Total Selección</p><p class="text-xl font-black text-[#1e3a8a]"><span id="total-selected-kvar">0.0</span> kVAR</p></div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <div id="tab-armonicos" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]" oninput="calcFiltros()" onchange="calcFiltros()">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Filtros Activos de Armónicos</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: IEEE 519 / IEC 61000</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div class="md:col-span-4 space-y-4">
+                    <div class="glass-card p-5 border-t-4 border-fuchsia-600">
+                        <h2 class="section-title text-fuchsia-800 border-fuchsia-100">Parámetros de Red y Carga</h2>
+                        <div class="space-y-4">
+                            <div><label class="label-premium text-fuchsia-900">Voltaje de Red (V)</label><input type="text" inputmode="decimal" id="v-afq" class="input-premium focus:border-fuchsia-500 text-fuchsia-800" value="480"></div>
+                            <div class="relative py-1"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div></div>
+                            <div>
+                                <label class="label-premium text-fuchsia-900">Corriente RMS Total (A)</label>
+                                <input type="text" inputmode="decimal" id="i-rms-afq" class="input-premium font-black focus:border-fuchsia-500 text-fuchsia-700" placeholder="Ej: 350">
+                            </div>
+                            <div>
+                                <label class="label-premium text-fuchsia-900">THDi Medido (%)</label>
+                                <input type="text" inputmode="decimal" id="thdi-afq" class="input-premium font-black focus:border-fuchsia-500 text-fuchsia-700" placeholder="Ej: 35">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-8">
+                    <div class="glass-card p-6 h-full flex flex-col justify-center bg-gradient-to-br from-white to-fuchsia-50/50">
+                        <div id="afq-placeholder" class="text-center text-slate-400 py-12">
+                            <p class="font-bold text-sm tracking-wide uppercase">Ingrese los parámetros de distorsión</p>
+                        </div>
+                        
+                        <div id="afq-results" class="hidden space-y-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                                    <p class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">I. Armónica Requerida</p>
+                                    <p class="text-2xl font-black text-slate-800 mt-1"><span id="res-i-arm">0</span>A</p>
+                                    <p class="text-[9px] text-slate-400 mt-1">Margen Seg. Incluido</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                                    <p class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Tranformadores (TC)</p>
+                                    <p class="text-2xl font-black text-slate-800 mt-1"><span id="res-tc">0/5</span></p>
+                                    <p class="text-[9px] text-slate-400 mt-1">Medición L1, L2, L3</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center">
+                                    <p class="text-[9px] uppercase font-bold text-slate-500 tracking-wider">Breaker Dedicado</p>
+                                    <p class="text-2xl font-black text-slate-800 mt-1"><span id="res-afq-brk">0</span>A</p>
+                                    <p class="text-[9px] text-slate-400 mt-1">Mínimo sugerido</p>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="bg-indigo-600 rounded-2xl p-5 text-white shadow-md relative overflow-hidden report-keep-bg print-bg-blue">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-indigo-200 mb-1">Filtro Circutor AFQs</p>
+                                    <h3 id="res-modelo-afqs" class="text-3xl font-black tracking-tight mb-2">AFQs-XX</h3>
+                                    <div class="text-[11px] text-indigo-100 mb-3"><span id="res-cap-afqs">0</span>A - <span id="res-tipo-afqs">Wall</span></div>
+                                    <div class="border-t border-indigo-400 pt-3 flex flex-col gap-1">
+                                        <p class="text-[9px] uppercase text-indigo-200 font-bold">Cable de Alimentación</p>
+                                        <p class="font-bold text-sm" id="res-cbl-afqs">-</p>
+                                    </div>
+                                </div>
+                                <div class="bg-fuchsia-600 rounded-2xl p-5 text-white shadow-md relative overflow-hidden report-keep-bg">
+                                    <p class="text-[10px] font-black uppercase tracking-widest text-fuchsia-200 mb-1">Filtro Circutor AFQm</p>
+                                    <h3 id="res-modelo-afqm" class="text-3xl font-black tracking-tight mb-2">AFQm-XX</h3>
+                                    <div class="text-[11px] text-fuchsia-100 mb-3"><span id="res-cap-afqm">0</span>A - <span id="res-tipo-afqm">Wall</span></div>
+                                    <div class="border-t border-fuchsia-400 pt-3 flex flex-col gap-1">
+                                        <p class="text-[9px] uppercase text-fuchsia-200 font-bold">Cable de Alimentación</p>
+                                        <p class="font-bold text-sm" id="res-cbl-afqm">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-cortocircuito" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]" oninput="calcCortoCircuito()" onchange="calcCortoCircuito()">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Estudio de Cortocircuito (Punto a Punto)</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: IEEE Std 141 (Red Book)</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-card p-6 space-y-6">
+                    <div>
+                        <h2 class="section-title">1. Fuente (Transformador)</h2>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div><label class="label-premium">Potencia (kVA)</label><input type="text" inputmode="decimal" id="sc-kva" class="input-premium" value="500"></div>
+                            <div><label class="label-premium">Tensión Sec. (V)</label><input type="text" inputmode="decimal" id="sc-v" class="input-premium" value="480"></div>
+                            <div><label class="label-premium">Impedancia (%Z)</label><input type="text" inputmode="decimal" id="sc-z" class="input-premium" value="5"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="section-title">2. Línea (Conductor Principal)</h2>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div><label class="label-premium">Longitud (m)</label><input type="text" inputmode="decimal" id="sc-l" class="input-premium" value="20"></div>
+                            <div class="col-span-2"><label class="label-premium">Calibre Principal</label><select id="sc-awg" class="input-premium"></select></div>
+                            <div><label class="label-premium">Ducto</label><select id="sc-duct" class="input-premium"><option value="PVC">PVC / No Mag.</option><option value="STEEL">Acero</option></select></div>
+                            <div class="col-span-2"><label class="label-premium">Paralelos por Fase</label><input type="number" id="sc-par" class="input-premium" value="1" min="1"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 flex flex-col justify-center relative overflow-hidden bg-gradient-to-br from-white to-red-50">
+                    <div id="sc-results" class="hidden space-y-6 relative z-10">
+                        <div class="bg-white p-5 rounded-xl border-l-4 border-slate-800 shadow-sm flex justify-between items-center">
+                            <div>
+                                <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Icc en Bornes del Trafo</p>
+                                <p class="text-xs text-slate-400 mt-1">Falla trifásica inicial</p>
+                            </div>
+                            <p class="text-3xl font-black text-slate-800"><span id="res-sc-trafo">0</span> <span class="text-lg">kA</span></p>
+                        </div>
+                        <div class="bg-red-600 p-6 rounded-2xl text-white shadow-lg flex justify-between items-center report-keep-bg">
+                            <div>
+                                <p class="text-[11px] uppercase font-black tracking-widest text-red-200">Icc al Final de la Línea</p>
+                                <p class="text-xs text-red-100 mt-1">Falla atenuada en Tablero</p>
+                            </div>
+                            <p class="text-5xl font-black"><span id="res-sc-line">0</span> <span class="text-2xl">kA</span></p>
+                        </div>
+                    </div>
+                    <div id="sc-placeholder" class="text-center text-slate-400 py-12"><p class="font-bold text-sm tracking-wide uppercase">Ingrese datos para calcular</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-barras" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]" oninput="calcBarras()">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Dimensionamiento de Barras de Cobre</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: DIN 43671 / IEC 61439</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div class="md:col-span-4 glass-card p-5 space-y-4">
+                    <h2 class="section-title">Variables de Carga</h2>
+                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="label-premium text-[#1e3a8a]">Amperaje Directo</label><input type="text" inputmode="decimal" id="manualCurrentBar" class="input-premium bg-white"></div>
+                </div>
+                <div class="md:col-span-8 glass-card p-5 border-t-4 border-[#1e3a8a] flex flex-col justify-center min-h-[250px]">
+                    <div id="resultsBar" class="space-y-4 hidden">
+                        <div class="flex gap-2 text-center">
+                            <div class="flex-1 bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-[10px] uppercase font-bold text-slate-500 mb-1">I Base Sistema</p><p id="calcCurrentBar" class="text-2xl font-black text-[#1e3a8a]">0A</p></div>
+                            <div class="flex-1 bg-[#1e3a8a] text-white p-3 rounded-xl shadow-md"><p class="text-[10px] uppercase font-bold text-blue-200 mb-1">I Diseño (Máx 90%)</p><p id="designCurrentBar" class="text-2xl font-black text-white">0A</p></div>
+                        </div>
+                        <div class="p-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl shadow-md text-center">
+                            <p class="text-[10px] uppercase font-black tracking-widest opacity-90">Barra Desnuda de Cobre Sugerida (Sección)</p>
+                            <p id="busbarSizeBar" class="text-3xl font-black mt-2 drop-shadow-sm">-</p>
+                        </div>
+                    </div>
+                    <div id="placeholderBar" class="h-full flex flex-col items-center justify-center text-center py-6 text-slate-400">
+                        <p class="font-medium text-sm uppercase tracking-wider">Ingrese un amperaje para calcular</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-protecciones" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]" oninput="calcTierra()">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Conductor de Puesta a Tierra (EGC)</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: NEC 250.122 / IEC 60364-5-54</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-6">
+                    <h2 class="section-title">Protección del Circuito</h2>
+                    <div class="space-y-4">
+                        <label class="label-premium">Breaker Principal Aguas Arriba (Amperios)</label>
+                        <input type="text" inputmode="decimal" id="breaker-tierra" class="input-premium text-3xl font-black text-center text-[#1e3a8a] py-4" placeholder="Ej: 200">
+                    </div>
+                </div>
+                <div class="glass-card p-6 border-t-4 border-emerald-500 bg-white">
+                    <h2 class="section-title">Calibre Mínimo de Tierra</h2>
+                    <div class="grid grid-cols-2 gap-4 mt-6">
+                        <div class="bg-orange-50 rounded-2xl p-6 border border-orange-200 text-center"><p class="text-[10px] font-black text-orange-800 uppercase tracking-widest mb-2">Cobre (Cu)</p><p id="res-tierra-cu" class="text-sm font-black text-orange-600">-</p></div>
+                        <div class="bg-slate-100 rounded-2xl p-6 border border-slate-300 text-center"><p class="text-[10px] font-black text-slate-600 uppercase tracking-widest mb-2">Aluminio (Al)</p><p id="res-tierra-al" class="text-sm font-black text-slate-500">-</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-motores" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]" oninput="calcMotor()" onchange="calcMotor()">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Análisis de Motores AC</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: NEC 430 / IEC 60034</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-6">
+                    <h2 class="section-title">Datos de Placa (Nameplate)</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="w-full"><label class="label-premium">Potencia (HP)</label><input type="text" inputmode="decimal" id="mot-hp" class="input-premium" value="50"></div>
+                        <div class="w-full"><label class="label-premium">Voltaje (V)</label><input type="text" inputmode="decimal" id="mot-v" class="input-premium" value="480"></div>
+                        <div class="w-full"><label class="label-premium">Eficiencia (%)</label><input type="text" inputmode="decimal" id="mot-eff" class="input-premium" value="92"></div>
+                        <div class="w-full"><label class="label-premium">FP (cos φ)</label><input type="text" inputmode="decimal" id="mot-fp" class="input-premium" value="0.85"></div>
+                        <div class="col-span-2 w-full"><label class="label-premium">Letra de Código NEMA (Arranque)</label>
+                            <select id="mot-code" class="input-premium">
+                                <option value="3.14">A-E (Bajo torque - 3.14 kVA/HP)</option>
+                                <option value="5.6" selected>F-G (Estándar - 5.6 kVA/HP)</option>
+                                <option value="7.1">H-K (Alto torque - 7.1 kVA/HP)</option>
+                                <option value="9.0">L-V (Muy alto - 9.0 kVA/HP)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 flex flex-col justify-center">
+                    <div id="mot-results" class="hidden space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">
+                                <p class="text-[10px] uppercase font-bold text-blue-800 tracking-wider">I. Plena Carga (FLA)</p>
+                                <p class="text-3xl font-black text-[#1e3a8a] mt-2"><span id="res-mot-fla">0</span>A</p>
+                            </div>
+                            <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 text-center">
+                                <p class="text-[10px] uppercase font-bold text-amber-800 tracking-wider">I. Arranque (LRA)</p>
+                                <p class="text-3xl font-black text-amber-600 mt-2"><span id="res-mot-lra">0</span>A</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div><p class="text-[10px] uppercase font-bold text-slate-500">Breaker Sugerido</p><p class="text-xs text-slate-400">Curva Inversa (250% FLA)</p></div>
+                            <p class="text-xl font-black text-slate-800"><span id="res-mot-brk">0</span>A</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+                            <div><p class="text-[10px] uppercase font-bold text-slate-500">Cable Mín. (75°C)</p><p class="text-xs text-slate-400">125% FLA Continua</p></div>
+                            <p class="text-sm font-black text-slate-800 text-right" id="res-mot-cbl">-</p>
+                        </div>
+                    </div>
+                    <div id="mot-placeholder" class="text-center text-slate-400 py-12"><p class="font-bold text-sm tracking-wide uppercase">Ingrese los datos de placa</p></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-respaldo" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]" oninput="calcUPS()">
+            <div class="mb-4"><h2 class="text-xl font-black text-slate-800">Sistemas de Respaldo UPS</h2><p class="text-xs font-bold text-slate-400 mt-1">Dimensionamiento Básico</p></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-5">
+                    <h2 class="section-title">Datos de Carga</h2>
+                    <div class="grid grid-cols-2 gap-4 items-end">
+                        <div class="w-full"><label class="label-premium">Carga Crítica (kW)</label><input type="text" inputmode="decimal" id="carga-ups" class="input-premium"></div>
+                        <div class="w-full"><label class="label-premium">Horas Respaldo</label><input type="text" inputmode="decimal" id="horas-ups" class="input-premium"></div>
+                        <div class="w-full"><label class="label-premium">Tensión Banco (Vdc)</label><input type="text" inputmode="decimal" id="vdc-ups" class="input-premium" value="12"></div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 bg-[#1e3a8a] text-white">
+                    <h2 class="section-title border-blue-800 text-blue-200">Resultados Sugeridos</h2>
+                    <div class="space-y-6 mt-6">
+                        <div class="flex items-center justify-between border-b border-blue-800 pb-5">
+                            <div><p class="text-xs font-bold text-blue-100 uppercase">Capacidad Inversor</p></div>
+                            <p id="res-ups-kva" class="text-4xl font-black text-[#60a5fa]">- kVA</p>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-xs font-bold text-blue-100 uppercase">Capacidad Baterías</p></div>
+                            <p id="res-ups-ah" class="text-4xl font-black text-[#60a5fa]">- Ah</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-iluminacion" class="tab-content hidden animate-[fadeIn_0.3s_ease-in-out]" oninput="calcIluminacion()">
+            <div class="mb-4"><h2 class="text-xl font-black text-slate-800">Cálculo de Iluminación de Interiores</h2><p class="text-xs font-bold text-slate-400 mt-1">Método de las Cavidades Zonales</p></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-6">
+                    <h2 class="section-title">Parámetros del Local y Lámpara</h2>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="w-full"><label class="label-premium">Largo (m)</label><input type="text" inputmode="decimal" id="largo-ilum" class="input-premium"></div>
+                        <div class="w-full"><label class="label-premium">Ancho (m)</label><input type="text" inputmode="decimal" id="ancho-ilum" class="input-premium"></div>
+                        <div class="col-span-2 w-full"><label class="label-premium">Altura Lámpara a plano trabajo (m)</label><input type="text" inputmode="decimal" id="altura-ilum" class="input-premium"></div>
+                        <div class="col-span-2 w-full"><label class="label-premium">Iluminancia Req. (Lux)</label><input type="text" inputmode="decimal" id="lux-ilum" class="input-premium"></div>
+                        <div class="col-span-2 w-full"><label class="label-premium">Lúmenes por Lámpara (lm)</label><input type="text" inputmode="decimal" id="lumen-ilum" class="input-premium"></div>
+                    </div>
+                </div>
+                <div class="glass-card p-8 flex flex-col justify-center items-center text-center bg-white relative overflow-hidden">
+                    <p class="text-xs font-black uppercase tracking-widest text-[#7dd3fc] mb-2">Cantidad Sugerida de Luminarias</p>
+                    <div class="text-[5rem] font-black text-[#60a5fa] drop-shadow-sm leading-none my-6" id="res-lum-qty">0</div>
+                    <div class="mt-6 w-full bg-[#1e3a8a] rounded-xl p-5 text-left flex justify-between shadow-lg text-white">
+                        <div><p class="text-[10px] text-blue-200 uppercase font-black tracking-wider">Sep. Largo (X)</p><p id="sep-largo" class="text-2xl font-black mt-1">-</p></div>
+                        <div class="text-right"><p class="text-[10px] text-blue-200 uppercase font-black tracking-wider">Sep. Ancho (Y)</p><p id="sep-ancho" class="text-2xl font-black mt-1">-</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // Tabla comercial (Sin 3 y 1 AWG)
-        const tablaConductores = [
-            { id: "14 AWG", amp: 15, res: 10.17 },
-            { id: "12 AWG", amp: 20, res: 6.56 },
-            { id: "10 AWG", amp: 30, res: 3.94 },
-            { id: "8 AWG", amp: 50, res: 2.56 },
-            { id: "6 AWG", amp: 65, res: 1.61 },
-            { id: "4 AWG", amp: 85, res: 1.02 },
-            { id: "2 AWG", amp: 115, res: 0.64 },
-            { id: "1/0 AWG", amp: 150, res: 0.40 },
-            { id: "2/0 AWG", amp: 175, res: 0.32 },
-            { id: "3/0 AWG", amp: 200, res: 0.25 },
-            { id: "4/0 AWG", amp: 230, res: 0.20 },
-            { id: "250 MCM", amp: 255, res: 0.17 },
-            { id: "300 MCM", amp: 285, res: 0.14 },
-            { id: "350 MCM", amp: 310, res: 0.12 },
-            { id: "400 MCM", amp: 335, res: 0.11 },
-            { id: "500 MCM", amp: 380, res: 0.09 }
+        // === DATOS GLOBALES Y UTILIDADES ===
+        const globalAwgTable = [
+            { label: "14 AWG", mm2: "2.08 mm²", a75: 20, a90: 25, a105: 30 }, { label: "12 AWG", mm2: "3.31 mm²", a75: 25, a90: 30, a105: 35 },
+            { label: "10 AWG", mm2: "5.26 mm²", a75: 35, a90: 40, a105: 45 }, { label: "8 AWG", mm2: "8.37 mm²", a75: 50, a90: 55, a105: 60 },
+            { label: "6 AWG", mm2: "13.3 mm²", a75: 65, a90: 75, a105: 85 }, { label: "4 AWG", mm2: "21.2 mm²", a75: 85, a90: 95, a105: 105 },
+            { label: "2 AWG", mm2: "33.6 mm²", a75: 115, a90: 130, a105: 140 }, { label: "1/0 AWG", mm2: "53.5 mm²", a75: 150, a90: 170, a105: 190 },
+            { label: "2/0 AWG", mm2: "67.4 mm²", a75: 175, a90: 195, a105: 220 }, { label: "4/0 AWG", mm2: "107.2 mm²", a75: 230, a90: 260, a105: 285 }, 
+            { label: "250 kcmil", mm2: "127 mm²", a75: 255, a90: 290, a105: 320 }, { label: "350 kcmil", mm2: "177 mm²", a75: 310, a90: 350, a105: 390 }, 
+            { label: "400 kcmil", mm2: "203 mm²", a75: 335, a90: 380, a105: 420 }, { label: "500 kcmil", mm2: "253 mm²", a75: 380, a90: 430, a105: 480 },
+            { label: "600 kcmil", mm2: "304 mm²", a75: 420, a90: 475, a105: 520 }
         ];
 
-        function updateSystem() {
-            const isChecked = document.getElementById('phase-toggle').checked;
-            document.getElementById('system-label').innerText = isChecked ? 'Trifásico' : 'Monofásico';
-            document.getElementById('phase-text').innerText = isChecked ? '3Φ' : '1Φ';
+        const breakersComerciales = [15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 225, 250, 300, 350, 400, 500, 600, 800, 1000, 1200, 1600, 2000];
+
+        function getBestGlobalAWGWithAmp(target, key) {
+            for (let c of globalAwgTable) if (c[key] >= target) return { label: `${c.label} (${c.mm2})`, amp: c[key] };
+            let max = globalAwgTable[globalAwgTable.length-1][key];
+            let qty = Math.ceil(target/max);
+            let n = target/qty;
+            for (let c of globalAwgTable) { if(c[key] >= n) return { label: `${qty}x ${c.label} (${c.mm2})`, amp: qty * c[key] }; }
+            return { label: "-", amp: 0 };
         }
 
-        function clearResults() {
-            document.getElementById('results-area').classList.add('hidden');
-            document.getElementById('error-msg').classList.add('hidden');
-            document.getElementById('results-list').innerHTML = '';
+        function getCommercialBreaker(target) { return breakersComerciales.find(b => b >= target) || (Math.ceil(target/100)*100); }
+
+        // Función de Parseo Seguro (Soporta comas de decimales "0,90" -> "0.90")
+        const pSafe = (val) => {
+            if(!val) return NaN;
+            let str = String(val).replace(',', '.');
+            return parseFloat(str);
+        };
+
+        // === CONTROLADOR DEL MENÚ DESPLEGABLE CON JS ===
+        function toggleDropdown(id, event) {
+            event.stopPropagation(); 
+            let targetMenu = document.getElementById(id);
+            let isCurrentlyOpen = targetMenu.classList.contains('show');
+            document.querySelectorAll('.dropdown-menu').forEach(menu => { menu.classList.remove('show'); });
+            if (!isCurrentlyOpen) targetMenu.classList.add('show');
         }
 
-        function showResult(label, value, unit) {
-            const resultsArea = document.getElementById('results-area');
-            const resultsList = document.getElementById('results-list');
-            resultsArea.classList.remove('hidden');
-            const div = document.createElement('div');
-            div.className = 'result-badge flex justify-between items-center';
-            div.innerHTML = `<span class="text-[10px] uppercase text-gray-500 font-bold">${label}</span> <span class="font-bold text-blue-900">${value} ${unit}</span>`;
-            resultsList.appendChild(div);
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.nav-category')) { document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show')); }
+        });
+
+        function switchTab(tabId, el, catId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('active-item'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active-cat'));
+            
+            document.getElementById(tabId).classList.remove('hidden');
+            if(el) { el.classList.add('active-item'); if(catId) document.getElementById(catId).classList.add('active-cat'); }
+            
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+            if (document.activeElement) document.activeElement.blur();
+            window.scrollTo({ top: 0, behavior: 'smooth' }); 
         }
 
-        function calculate() {
-            clearResults();
-            const errorDiv = document.getElementById('error-msg');
+        // === 1. CONDUCTORES ===
+        function toggleManualInputs() { document.getElementById('num-paralelos').disabled = document.getElementById('calibre-manual').value === 'AUTO'; }
+        function updateSystem() { document.getElementById('phase-text').innerText = document.getElementById('phase-toggle').checked ? '3Φ' : '1Φ'; }
+        
+        function calcCaida() {
+            try {
+                const err = document.getElementById('error-msg-caida'); err.classList.add('hidden');
+                const resL = document.getElementById('results-list-caida'); resL.innerHTML = '';
+                const resArea = document.getElementById('results-area-caida');
+                
+                let v = pSafe(document.getElementById('voltaje-caida').value);
+                let i = pSafe(document.getElementById('corriente-caida').value);
+                let pVal = pSafe(document.getElementById('potencia-caida').value);
+                let pUnit = document.getElementById('unidad-potencia-caida').value;
+                let fpRaw = pSafe(document.getElementById('fp-caida').value);
+                let fpSafe = Math.max(0.01, Math.min(Math.abs(isNaN(fpRaw) ? 0.90 : fpRaw), 1));
+                
+                let dist = pSafe(document.getElementById('distancia').value) || 0;
+                let cMax = pSafe(document.getElementById('caida-max').value) || 3;
+                let isTri = document.getElementById('phase-toggle').checked;
+                let k = isTri ? Math.sqrt(3) : 1;
 
-            let v = parseFloat(document.getElementById('voltaje').value);
-            let i = parseFloat(document.getElementById('corriente').value);
-            let pkW = parseFloat(document.getElementById('potencia').value);
-            let fp = parseFloat(document.getElementById('fp').value);
-            let skVA = parseFloat(document.getElementById('aparente').value);
-            let hp = parseFloat(document.getElementById('hp').value);
-            let dist = parseFloat(document.getElementById('distancia').value) || 0;
-            let cMax = parseFloat(document.getElementById('caida-max').value) || 3;
-
-            const isTrifasico = document.getElementById('phase-toggle').checked;
-            const k = isTrifasico ? Math.sqrt(3) : 1;
-
-            if (!isNaN(hp) && isNaN(pkW)) pkW = (hp * 0.746);
-            if (!isNaN(pkW) && !isNaN(skVA) && isNaN(fp)) fp = pkW / skVA;
-            if (isNaN(fp)) fp = 0.90;
-
-            if (isNaN(i)) {
-                if (!isNaN(skVA) && !isNaN(v)) i = (skVA * 1000) / (v * k);
-                else if (!isNaN(pkW) && !isNaN(v)) i = (pkW * 1000) / (v * k * fp);
-            }
-
-            if (isNaN(v) || isNaN(i)) {
-                errorDiv.innerText = "Error: Ingrese Voltaje y Corriente (o Potencia).";
-                errorDiv.classList.remove('hidden');
-                return;
-            }
-
-            let s_calc = (v * i * k) / 1000;
-            let p_calc = s_calc * fp;
-            let q_calc = Math.sqrt(Math.pow(s_calc, 2) - Math.pow(p_calc, 2));
-            let hp_calc = p_calc / 0.746;
-
-            if (document.getElementById('corriente').value === "") showResult("Corriente", i.toFixed(2), "A");
-            if (document.getElementById('potencia').value === "") showResult("Potencia Activa", p_calc.toFixed(2), "kW");
-            if (document.getElementById('aparente').value === "") showResult("Potencia Aparente", s_calc.toFixed(2), "kVA");
-            showResult("Potencia Reactiva", q_calc.toFixed(2), "kVAR");
-            if (document.getElementById('hp').value === "") showResult("Potencia Motor", hp_calc.toFixed(1), "HP");
-            if (document.getElementById('fp').value === "") showResult("Factor Potencia", fp.toFixed(2), "");
-
-            let cablesEnParalelo = 1;
-            let conductorElegido = null;
-            let porcCaidaFinal = 0;
-
-            const ampacidadMaxima = tablaConductores[tablaConductores.length - 1].amp;
-            if (i > ampacidadMaxima) cablesEnParalelo = Math.ceil(i / ampacidadMaxima);
-
-            let encontrado = false;
-            while (!encontrado && cablesEnParalelo <= 12) {
-                const corrientePorFase = i / cablesEnParalelo;
-                for (let cond of tablaConductores) {
-                    if (corrientePorFase > cond.amp) continue;
-                    const factorK = isTrifasico ? Math.sqrt(3) : 2;
-                    const R_eq = cond.res / cablesEnParalelo;
-                    const deltaV = (factorK * i * dist * R_eq) / 1000;
-                    const porcCaida = (deltaV / v) * 100;
-                    if (porcCaida <= cMax) {
-                        conductorElegido = cond;
-                        porcCaidaFinal = porcCaida;
-                        encontrado = true;
-                        break;
-                    }
+                if (isNaN(i) && !isNaN(pVal) && !isNaN(v)) {
+                    if (pUnit === 'kw') i = (pVal * 1000) / (v * k * fpSafe);
+                    else if (pUnit === 'kva') i = (pVal * 1000) / (v * k);
+                    else if (pUnit === 'hp') i = (pVal * 745.7) / (v * k * fpSafe);
                 }
-                if (!encontrado) cablesEnParalelo++;
-            }
+                
+                if (isNaN(v) || isNaN(i) || i <= 0 || !isFinite(i)) { resArea.classList.add('hidden'); return; }
 
-            if (encontrado) {
-                let sugerencia = cablesEnParalelo > 1 ? `${conductorElegido.id} x ${cablesEnParalelo}` : conductorElegido.id;
-                showResult("Conductor", sugerencia, "(THW 75°C)");
-                showResult("Caída Real", porcCaidaFinal.toFixed(2), "%");
+                let i_design = i / 0.9; resArea.classList.remove('hidden');
+                let calc_kVA = (v * k * i) / 1000, calc_kW = calc_kVA * fpSafe, calc_HP = (calc_kW * 1000) / 745.7;
+                let calc_kVAR = calc_kVA * Math.sqrt(1 - Math.pow(fpSafe, 2));
+
+                resL.innerHTML += `
+                <div class="col-span-full grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 text-center"><span class="text-[9px] uppercase tracking-wider block">I Nominal</span><span class="text-[#1e3a8a] text-xl">${i.toFixed(1)}A</span></div>
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs font-bold text-slate-600 text-center"><span class="text-[9px] uppercase tracking-wider text-amber-700 block">I Diseño (90%)</span><span class="text-amber-700 text-xl">${i_design.toFixed(1)}A</span></div>
+                    <div class="col-span-2 p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-xs font-bold text-slate-600 text-center">
+                        <span class="text-[9px] uppercase tracking-wider text-indigo-800 block mb-1">Equivalencias Potencia</span>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2"><div class="bg-white rounded-lg border border-indigo-100 py-1"><span class="text-[9px] text-slate-400 block">kW</span><span class="text-[#1e3a8a] text-sm">${calc_kW.toFixed(2)}</span></div><div class="bg-white rounded-lg border border-indigo-100 py-1"><span class="text-[9px] text-slate-400 block">kVA</span><span class="text-[#1e3a8a] text-sm">${calc_kVA.toFixed(2)}</span></div><div class="bg-white rounded-lg border border-indigo-100 py-1"><span class="text-[9px] text-slate-400 block">HP</span><span class="text-[#1e3a8a] text-sm">${calc_HP.toFixed(2)}</span></div><div class="bg-white rounded-lg border border-indigo-100 py-1"><span class="text-[9px] text-slate-400 block">kVAR</span><span class="text-[#1e3a8a] text-sm">${calc_kVAR.toFixed(2)}</span></div></div>
+                    </div>
+                </div>`;
+
+                let ampKey = document.getElementById('tipo-conductor').value, cablesP = 1, condElegido = null, caidaFinal = 0, encontrado = false, man = document.getElementById('calibre-manual').value;
+                const resisRef = { "14 AWG": 10.17, "12 AWG": 6.56, "10 AWG": 3.94, "8 AWG": 2.56, "6 AWG": 1.61, "4 AWG": 1.02, "2 AWG": 0.64, "1/0 AWG": 0.40, "2/0 AWG": 0.32, "4/0 AWG": 0.20, "250 kcmil": 0.17, "350 kcmil": 0.12, "400 kcmil": 0.10, "500 kcmil": 0.09, "600 kcmil": 0.08 };
+
+                if (man !== "AUTO") { 
+                    let manClean = man.split(' (')[0]; 
+                    condElegido = globalAwgTable.find(c => c.label === manClean); 
+                    cablesP = parseInt(document.getElementById('num-paralelos').value); 
+                    caidaFinal = (((isTri ? Math.sqrt(3) : 2) * i_design * dist * (resisRef[manClean] / cablesP)) / 1000 / v) * 100; 
+                    encontrado = true; 
+                } 
+                else { let maxA = globalAwgTable[globalAwgTable.length-1][ampKey]; if (i_design > maxA) cablesP = Math.ceil(i_design / maxA); while (!encontrado && cablesP <= 12) { for (let c of globalAwgTable) { if (!resisRef[c.label] || (i_design / cablesP) > c[ampKey]) continue; let porc = (((isTri ? Math.sqrt(3) : 2) * i_design * dist * (resisRef[c.label] / cablesP)) / 1000 / v) * 100; if (porc <= cMax) { condElegido = c; caidaFinal = porc; encontrado = true; break; } } if (!encontrado) cablesP++; } }
+                if (encontrado) {
+                    let maxAmp90 = (condElegido[ampKey] * cablesP) * 0.9, isSufficient = man === "AUTO" || i <= maxAmp90, boxClass = isSufficient ? "bg-blue-50 border-blue-100" : "bg-red-50 border-red-300";
+                    resL.innerHTML += `<div class="p-3 ${boxClass} rounded-xl text-xs font-bold text-slate-600 flex flex-col justify-center border"><span class="text-[10px] uppercase tracking-widest mb-1 text-slate-500">Cable Sugerido</span><span class="${isSufficient?'text-[#1e3a8a]':'text-red-700'} text-lg font-black">${cablesP > 1 ? cablesP+'x ' : ''}${condElegido.label} (${condElegido.mm2})</span><span class="text-[10px] ${isSufficient?'text-blue-600':'text-red-600'} font-normal mt-1">Soporta máx (90%): ${maxAmp90.toFixed(1)} A</span></div>`;
+                    resL.innerHTML += `<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex flex-col justify-center text-center"><span class="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Caída Tensión</span><span class="${caidaFinal > cMax ? 'text-red-600' : 'text-[#1e3a8a]'} text-2xl font-black">${caidaFinal.toFixed(2)}%</span></div>`;
+                } else { err.innerText = "Sin solución automática. Use modo manual."; err.classList.remove('hidden'); }
+            } catch (error) { console.error("Error en calcCaida:", error); }
+        }
+        document.getElementById('conductores-form-container').addEventListener('input', calcCaida);
+        document.getElementById('conductores-form-container').addEventListener('change', calcCaida);
+
+        // === 2. BANDEJAS PORTACABLES ===
+        const trayCableData = {
+            "12 AWG (3C) (3.31 mm²)": { d: 11.5 }, "10 AWG (3C) (5.26 mm²)": { d: 14.2 }, "8 AWG (3C) (8.37 mm²)": { d: 18.0 },
+            "6 AWG (3C) (13.3 mm²)": { d: 21.5 }, "4 AWG (3C) (21.2 mm²)": { d: 25.4 }, "2 AWG (3C) (33.6 mm²)": { d: 30.0 },
+            "1/0 AWG (3C) (53.5 mm²)": { d: 36.5 }, "2/0 AWG (3C) (67.4 mm²)": { d: 39.0 }, "4/0 AWG (3C) (107.2 mm²)": { d: 46.5 },
+            "250 kcmil (3C) (127 mm²)": { d: 52.0 }, "350 kcmil (3C) (177 mm²)": { d: 58.5 }, "400 kcmil (3C) (203 mm²)": { d: 62.0 },
+            "500 kcmil (3C) (253 mm²)": { d: 67.5 }, "600 kcmil (3C) (304 mm²)": { d: 73.0 }
+        };
+        const standardTrays = [100, 150, 200, 300, 450, 600, 750, 900];
+        let trayItems = [];
+
+        function addTrayCable() {
+            let size = document.getElementById('tr-cable-size').value; let qty = parseInt(document.getElementById('tr-cable-qty').value);
+            if(size && qty > 0) { let existing = trayItems.find(i => i.size === size); if(existing) existing.qty += qty; else trayItems.push({size, qty}); renderTrayList(); calcTray(); }
+        }
+        function removeTrayCable(index) { trayItems.splice(index, 1); renderTrayList(); calcTray(); }
+        function renderTrayList() {
+            let list = document.getElementById('tray-list'); list.innerHTML = '';
+            trayItems.forEach((item, i) => { list.innerHTML += `<div class="flex justify-between items-center bg-slate-50 p-2 rounded-lg border border-slate-200 mb-1"><span class="font-bold text-sm text-[#1e3a8a]">${item.qty}x ${item.size}</span><button onclick="removeTrayCable(${i})" class="text-red-500 font-bold px-2">✕</button></div>`; });
+        }
+        function calcTray() {
+            let totalArea = 0;
+            trayItems.forEach(item => { let r = trayCableData[item.size].d / 2; totalArea += Math.PI * Math.pow(r, 2) * item.qty; });
+            document.getElementById('res-tr-area').innerText = totalArea.toFixed(1); document.getElementById('res-tr-weight').innerText = (totalArea * 0.003).toFixed(1);
+            if(totalArea > 0) {
+                let reqAncho = (totalArea / 0.40) / 50; let finalWidth = standardTrays.find(w => w >= reqAncho) || (Math.ceil(reqAncho/150)*150);
+                document.getElementById('res-tr-width').innerText = finalWidth; document.getElementById('res-tr-width-in').innerText = Math.round(finalWidth / 25.4);
+            } else { document.getElementById('res-tr-width').innerText = "100"; document.getElementById('res-tr-width-in').innerText = "4"; }
+        }
+
+        // === 3. TUBERÍAS ===
+        const wD = { "14 AWG (2.08 mm²)": 6.258, "12 AWG (3.31 mm²)": 8.439, "10 AWG (5.26 mm²)": 13.61, "8 AWG (8.37 mm²)": 23.61, "6 AWG (13.3 mm²)": 32.71, "4 AWG (21.2 mm²)": 52.39, "2 AWG (33.6 mm²)": 74.71, "1/0 AWG (53.5 mm²)": 119.7, "2/0 AWG (67.4 mm²)": 143.5, "4/0 AWG (107.2 mm²)": 208.0, "250 kcmil (127 mm²)": 256.5, "350 kcmil (177 mm²)": 337.5, "500 kcmil (253 mm²)": 456.3 };
+        const condD = { "EMT": {"1/2": 15.8, "3/4": 20.93, "1": 26.64, "1-1/2": 40.89, "2": 52.5, "3": 85.24, "4": 110.08}, "PVC": {"1/2": 15.8, "3/4": 20.93, "1": 26.64, "1-1/2": 40.89, "2": 52.5, "3": 85.24, "4": 110.08} };
+        function calcTuberia() { let ct = document.getElementById('conduitType').value, cs = document.getElementById('conduitSize').value, ws = document.getElementById('wireSize').value; if(!ct || !cs || !ws) return; let aT = Math.PI * Math.pow(condD[ct][cs]/2, 2); document.getElementById('resultCount-tuberia').innerText = Math.max(0, Math.floor(((aT * 0.40) - (aT * 0.15)) / wD[ws])); }
+
+        // === 4. CAPACITORES ===
+        const circCat = [{v:[200,240],p:'CLZ-FP-23/',val:[2.5,5,7.5,10,12.5,15,20,25,30]},{v:[380,415],p:'CLZ-FP-40/',val:[2.5,5,7.5,10,12.5,15,20,25,30,40,50,60]},{v:[420,459],p:'CLZ-FP-44/',val:[2.5,5,6.25,7.5,10,12.5,15,20,25,30,40,50,60]},{v:[460,480],p:'CLZ-FP-48/',val:[2.5,5,6.25,7.5,10,12.5,15,20,25,30,40,50,60]},{v:[481,600],p:'CLZ-FP-52/',val:[2.5,5,6.25,7.5,8.5,10,12.5,15,20,25,30,40,50,60]}];
+        let tKvar = 0;
+        function updateBaseAndCalculate() { document.getElementById('steps-container').innerHTML = ''; calculateTheory(); }
+        
+        function calculateTheory() {
+            let mkvar = pSafe(document.getElementById('manual-kvar-cap').value);
+            let pkw = pSafe(document.getElementById('active-power-cap').value) || 0;
+            let fA = pSafe(document.getElementById('fp-actual-cap').value) || 0;
+            let fT = pSafe(document.getElementById('fp-target-cap').value) || 0;
+            let v = pSafe(document.getElementById('voltage-cap').value) || 480;
+            
+            if(mkvar > 0) tKvar = mkvar; 
+            else if (pkw > 0 && fA > 0 && fT > fA) tKvar = pkw * (Math.tan(Math.acos(fA)) - Math.tan(Math.acos(fT))); 
+            else tKvar = 0;
+            
+            document.getElementById('theory-kvar').innerText = tKvar.toFixed(1);
+            
+            if(tKvar > 0 && v > 0) {
+                // CORRECCIÓN AMP X FASE: Re-incorporado
+                let il = (tKvar * 1000) / (1.732 * v); 
+                let targetB = il * 1.35;
+                
+                document.getElementById('teoric-amps').innerText = il.toFixed(1) + " A";
+                document.getElementById('main-breaker').innerText = getCommercialBreaker(targetB) + " A";
+                document.getElementById('cap-cable-75').innerText = getBestGlobalAWGWithAmp(targetB, 'a75').label;
+                document.getElementById('cap-cable-90').innerText = getBestGlobalAWGWithAmp(targetB, 'a90').label;
             } else {
-                errorDiv.innerText = "Sin solución técnica viable.";
-                errorDiv.classList.remove('hidden');
+                document.getElementById('teoric-amps').innerText = "0.0 A";
+                document.getElementById('main-breaker').innerText = "0 A";
+                document.getElementById('cap-cable-75').innerText = "-";
+                document.getElementById('cap-cable-90').innerText = "-";
             }
+            updateTotalSelected();
+        }
+
+        function addStep() {
+            let container = document.getElementById('steps-container'), v = pSafe(document.getElementById('voltage-cap').value) || 480, fam = circCat.find(f => v >= f.v[0] && v <= f.v[1]); if (!fam) return;
+            let opts = fam.val.map(m => `<option value="${m}">${fam.p}${m} kVAR</option>`).join(''), id = Date.now(), div = document.createElement('div');
+            div.className = "step-row flex gap-2 items-center p-3 bg-white rounded-xl border border-slate-200 shadow-sm"; div.id = `stp-${id}`;
+            div.innerHTML = `<div class="step-label bg-[#1e3a8a] text-white text-[9px] font-black px-2 py-3 rounded-lg leading-none min-w-[55px] text-center">PASO #1</div><select class="input-premium py-1.5 px-2 flex-grow stp-sel text-sm" onchange="updateTotalSelected()"><option value="0">Capacitor...</option>${opts}</select><div class="flex flex-col"><span class="text-[9px] font-bold text-slate-400 uppercase text-center">UNID.</span><input type="number" value="1" min="1" class="input-premium py-1 px-1 w-12 text-center stp-q font-black text-lg text-[#1e3a8a]" oninput="updateTotalSelected()"></div><div class="bg-blue-50 p-2 rounded-lg flex flex-col items-center min-w-[75px] border border-blue-100"><span class="text-[8px] font-bold text-blue-800 uppercase">AMPS</span><span class="text-sm font-black text-[#1e3a8a] stp-amp">0.0</span></div><button onclick="document.getElementById('stp-${id}').remove(); updateTotalSelected()" class="no-print w-8 h-8 text-red-500 hover:bg-red-50 rounded-full transition font-black">✕</button>`;
+            container.appendChild(div); updateTotalSelected();
+        }
+        function updateTotalSelected() {
+            let v = pSafe(document.getElementById('voltage-cap').value) || 1, rows = document.querySelectorAll('.step-row'), sumK = 0, sumA = 0, seq = [];
+            rows.forEach((row, index) => { let sel = row.querySelector('.stp-sel'), qty = parseInt(row.querySelector('.stp-q').value) || 0, kv = pSafe(sel.value) || 0; row.querySelector('.step-label').innerText = `PASO #${index + 1}`; let k = kv * qty, a = (k * 1000) / (1.732 * v); row.querySelector('.stp-amp').innerText = a.toFixed(1); sumK += k; sumA += a; if(kv > 0) seq.push(qty); });
+            document.getElementById('total-selected-kvar').innerText = sumK.toFixed(1); document.getElementById('total-selected-amps').innerText = sumA.toFixed(1); document.getElementById('step-sequence-top').innerText = seq.length > 0 ? seq.join('') : '---';
+        }
+
+        // === 5. FILTROS ARMÓNICOS ===
+        const tcStandard = [100, 150, 200, 250, 300, 400, 500, 600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 4000];
+        const circutorAFQm = [{ amp: 30, type: "Wall" }, { amp: 60, type: "Wall" }, { amp: 100, type: "Wall / Cabinet" }, { amp: 200, type: "Cabinet" }, { amp: 300, type: "Cabinet" }, { amp: 400, type: "Cabinet" }];
+        const circutorAFQs = [{ amp: 15, type: "Wall" }, { amp: 30, type: "Wall" }, { amp: 60, type: "Wall" }, { amp: 100, type: "Wall" }];
+
+        function calcFiltros() {
+            let v = pSafe(document.getElementById('v-afq').value) || 0, irms = pSafe(document.getElementById('i-rms-afq').value) || 0, thdi = pSafe(document.getElementById('thdi-afq').value) || 0;
+            const placeholder = document.getElementById('afq-placeholder'), results = document.getElementById('afq-results');
+            if(irms > 0 && thdi > 0 && v > 0) {
+                placeholder.classList.add('hidden'); results.classList.remove('hidden');
+                let i_arm = irms * (thdi / 100); let i_req = i_arm * 1.15; document.getElementById('res-i-arm').innerText = i_req.toFixed(1);
+                let tcTarget = irms * 1.25, tcFinal = tcStandard.find(t => t >= tcTarget) || (Math.ceil(tcTarget/500)*500); document.getElementById('res-tc').innerText = tcFinal + "/5";
+                let amp_prot = i_req * 1.25; document.getElementById('res-afq-brk').innerText = getCommercialBreaker(amp_prot);
+                let cbl_req = getBestGlobalAWGWithAmp(amp_prot, 'a75').label;
+
+                let f_afqs = circutorAFQs.find(f => f.amp >= i_req);
+                if (f_afqs) { document.getElementById('res-modelo-afqs').innerText = "AFQs-" + f_afqs.amp; document.getElementById('res-cap-afqs').innerText = f_afqs.amp; document.getElementById('res-tipo-afqs').innerText = f_afqs.type; document.getElementById('res-cbl-afqs').innerText = getBestGlobalAWGWithAmp(f_afqs.amp * 1.25, 'a75').label; } 
+                else { document.getElementById('res-modelo-afqs').innerText = "N/A"; document.getElementById('res-cap-afqs').innerText = "-"; document.getElementById('res-tipo-afqs').innerText = "Ver AFQm"; document.getElementById('res-cbl-afqs').innerText = "-"; }
+
+                let f_afqm = circutorAFQm.find(f => f.amp >= i_req);
+                if (f_afqm) { document.getElementById('res-modelo-afqm').innerText = "AFQm-" + f_afqm.amp; document.getElementById('res-cap-afqm').innerText = f_afqm.amp; document.getElementById('res-tipo-afqm').innerText = f_afqm.type; document.getElementById('res-cbl-afqm').innerText = getBestGlobalAWGWithAmp(f_afqm.amp * 1.25, 'a75').label; } 
+                else { let modulos = Math.ceil(i_req / 400); document.getElementById('res-modelo-afqm').innerText = "Paralelo"; document.getElementById('res-cap-afqm').innerText = Math.ceil(i_req); document.getElementById('res-tipo-afqm').innerText = `${modulos}x AFQm-400`; document.getElementById('res-cbl-afqm').innerText = cbl_req; }
+            } else { placeholder.classList.remove('hidden'); results.classList.add('hidden'); }
+        }
+
+        // === 6. CORTOCIRCUITO ===
+        const constC_PVC = { "14 AWG (2.08 mm²)": 389, "12 AWG (3.31 mm²)": 617, "10 AWG (5.26 mm²)": 981, "8 AWG (8.37 mm²)": 1557, "6 AWG (13.3 mm²)": 2471, "4 AWG (21.2 mm²)": 3930, "2 AWG (33.6 mm²)": 6200, "1/0 AWG (53.5 mm²)": 9600, "2/0 AWG (67.4 mm²)": 11400, "4/0 AWG (107.2 mm²)": 16600, "250 kcmil (127 mm²)": 18500, "350 kcmil (177 mm²)": 22700, "400 kcmil (203 mm²)": 24000, "500 kcmil (253 mm²)": 26700, "600 kcmil (304 mm²)": 28000 };
+        function calcCortoCircuito() {
+            let kva = pSafe(document.getElementById('sc-kva').value)||0, v = pSafe(document.getElementById('sc-v').value)||0, z = pSafe(document.getElementById('sc-z').value)||0, l = pSafe(document.getElementById('sc-l').value)||0, par = parseInt(document.getElementById('sc-par').value)||1, awg = document.getElementById('sc-awg').value, duct = document.getElementById('sc-duct').value;
+            if(kva > 0 && v > 0 && z > 0) {
+                let i_base = (kva * 1000) / (1.732 * v), icc_trafo = i_base / (z / 100); document.getElementById('res-sc-trafo').innerText = (icc_trafo / 1000).toFixed(2);
+                if (l > 0 && awg) { let C = (constC_PVC[awg] || 20000) * par; let f = (1.732 * l * icc_trafo) / (C * v), M = 1 / (1 + f), icc_linea = icc_trafo * M; document.getElementById('res-sc-line').innerText = (icc_linea / 1000).toFixed(2); } else { document.getElementById('res-sc-line').innerText = "-"; }
+                document.getElementById('sc-placeholder').classList.add('hidden'); document.getElementById('sc-results').classList.remove('hidden');
+            } else { document.getElementById('sc-placeholder').classList.remove('hidden'); document.getElementById('sc-results').classList.add('hidden'); }
+        }
+
+        // === 7, 8, 9, 10, 11 (BARRAS, TIERRA, MOTORES, UPS, ILUMINACION) ===
+        const busB = [{s:"15 mm x 3 mm",a:180},{s:"20 mm x 5 mm",a:330},{s:"30 mm x 5 mm",a:450},{s:"40 mm x 5 mm",a:580},{s:"50 mm x 10 mm",a:1150},{s:"80 mm x 10 mm",a:1750},{s:"100 mm x 10 mm",a:2150}];
+        function calcBarras() { let ib = pSafe(document.getElementById('manualCurrentBar').value); if(ib > 0) { let id = ib / 0.9; document.getElementById('calcCurrentBar').innerText = ib.toFixed(1) + " A"; document.getElementById('designCurrentBar').innerText = id.toFixed(1) + " A"; let bs = busB.find(b=>b.a >= id); document.getElementById('busbarSizeBar').innerText = bs ? bs.s : "Consultar Ing."; document.getElementById('resultsBar').classList.remove('hidden'); document.getElementById('placeholderBar').classList.add('hidden'); } else { document.getElementById('resultsBar').classList.add('hidden'); document.getElementById('placeholderBar').classList.remove('hidden'); } }
+        const tabTierra = [{ amp: 15, cu: "14 AWG (2.08 mm²)", al: "12 AWG (3.31 mm²)" }, { amp: 20, cu: "12 AWG (3.31 mm²)", al: "10 AWG (5.26 mm²)" }, { amp: 60, cu: "10 AWG (5.26 mm²)", al: "8 AWG (8.37 mm²)" }, { amp: 100, cu: "8 AWG (8.37 mm²)", al: "6 AWG (13.3 mm²)" }, { amp: 200, cu: "6 AWG (13.3 mm²)", al: "4 AWG (21.2 mm²)" }, { amp: 300, cu: "4 AWG (21.2 mm²)", al: "2 AWG (33.6 mm²)" }, { amp: 400, cu: "2 AWG (33.6 mm²)", al: "1/0 AWG (53.5 mm²)" }, { amp: 600, cu: "1/0 AWG (53.5 mm²)", al: "2/0 AWG (67.4 mm²)" }, { amp: 800, cu: "1/0 AWG (53.5 mm²)", al: "4/0 AWG (107.2 mm²)" }, { amp: 1000, cu: "2/0 AWG (67.4 mm²)", al: "4/0 AWG (107.2 mm²)" }, { amp: 1200, cu: "4/0 AWG (107.2 mm²)", al: "250 kcmil (127 mm²)" }];
+        function calcTierra() { let brk = pSafe(document.getElementById('breaker-tierra').value)||0; let t = tabTierra.find(x => x.amp >= brk); document.getElementById('res-tierra-cu').innerText = brk > 0 ? (t ? t.cu : "> 4/0") : "-"; document.getElementById('res-tierra-al').innerText = brk > 0 ? (t ? t.al : "> 250MCM") : "-"; }
+        function calcMotor() { let hp = pSafe(document.getElementById('mot-hp').value)||0, v = pSafe(document.getElementById('mot-v').value)||0, eff = pSafe(document.getElementById('mot-eff').value)||90, fp = pSafe(document.getElementById('mot-fp').value)||0.85, kva_hp = pSafe(document.getElementById('mot-code').value)||5.6; if(hp > 0 && v > 0) { let fla = (hp * 746) / (1.732 * v * (eff/100) * fp); document.getElementById('res-mot-fla').innerText = fla.toFixed(1); document.getElementById('res-mot-lra').innerText = ((kva_hp * hp * 1000) / (1.732 * v)).toFixed(1); document.getElementById('res-mot-brk').innerText = getCommercialBreaker(fla * 2.5); document.getElementById('res-mot-cbl').innerText = getBestGlobalAWGWithAmp(fla * 1.25, 'a75').label; document.getElementById('mot-placeholder').classList.add('hidden'); document.getElementById('mot-results').classList.remove('hidden'); } else { document.getElementById('mot-placeholder').classList.remove('hidden'); document.getElementById('mot-results').classList.add('hidden'); } }
+        function calcUPS() { let kw = pSafe(document.getElementById('carga-ups').value)||0, hr = pSafe(document.getElementById('horas-ups').value)||0, vdc = pSafe(document.getElementById('vdc-ups').value)||12; if(kw > 0 && hr > 0) { document.getElementById('res-ups-kva').innerText = ((kw / 0.9) * 1.25).toFixed(1) + " kVA"; document.getElementById('res-ups-ah').innerText = ((kw * 1000 * hr) / (vdc * 0.9)).toFixed(0) + " Ah"; } else { document.getElementById('res-ups-kva').innerText = "- kVA"; document.getElementById('res-ups-ah').innerText = "- Ah"; } }
+        function calcIluminacion() { let l = pSafe(document.getElementById('largo-ilum').value)||0, a = pSafe(document.getElementById('ancho-ilum').value)||0, h = pSafe(document.getElementById('altura-ilum').value)||0, lux = pSafe(document.getElementById('lux-ilum').value)||0, lum = pSafe(document.getElementById('lumen-ilum').value)||0; if((l*a) > 0 && lux > 0 && lum > 0) { let qty = Math.ceil((lux * l * a) / (lum * 0.6 * 0.8)); document.getElementById('res-lum-qty').innerText = qty; let nx = Math.round(Math.sqrt(qty * (l / a))) || 1, ny = Math.ceil(qty / nx) || 1; document.getElementById('sep-largo').innerText = (l / nx).toFixed(2) + " m"; document.getElementById('sep-ancho').innerText = (a / ny).toFixed(2) + " m"; } else { document.getElementById('res-lum-qty').innerText = "0"; document.getElementById('sep-largo').innerText = "-"; document.getElementById('sep-ancho').innerText = "-"; } }
+
+        // === INICIALIZACIÓN ===
+        function populate() {
+            let cs = document.getElementById('conduitSize'), ws = document.getElementById('wireSize'), awg = document.getElementById('sc-awg'), tr = document.getElementById('tr-cable-size'), man = document.getElementById('calibre-manual');
+            ["1/2", "3/4", "1", "1-1/2", "2", "3", "4"].forEach(s => cs.add(new Option(s+'"', s)));
+            Object.keys(wD).forEach(w => ws.add(new Option(w, w))); cs.value="3/4"; ws.value="12 AWG (3.31 mm²)";
+            Object.keys(constC_PVC).forEach(w => awg.add(new Option(w, w))); awg.value="12 AWG (3.31 mm²)";
+            Object.keys(trayCableData).forEach(w => tr.add(new Option(w, w)));
+            man.add(new Option("-- AUTOMÁTICO --", "AUTO")); globalAwgTable.forEach(c => man.add(new Option(`${c.label} (${c.mm2})`, `${c.label} (${c.mm2})`)));
+        }
+
+        window.onload = () => { 
+            populate(); toggleManualInputs(); 
+            // Forzar renderizado en caso de autocompletado del navegador
+            calcCaida(); calcTuberia(); calculateTheory(); calcFiltros(); calcCortoCircuito(); calcMotor(); calcTray(); 
+        }
+
+        // === MOTOR EXPORTACIÓN ===
+        function exportarReporteUniversal(event) {
+            const btn = event.currentTarget; const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span class="animate-pulse">GENERANDO...</span>'; btn.style.opacity = '0.7'; btn.disabled = true;
+            
+            const activeTab = document.querySelector('.tab-content:not(.hidden)');
+            let activeItem = document.querySelector('.dropdown-item.active-item');
+            const tabTitle = activeItem ? activeItem.innerText : "Reporte General";
+            
+            const printContainer = document.createElement('div'); printContainer.id = 'solutronic-print-container';
+            printContainer.className = 'fixed top-0 left-[-9999px] w-[1000px] bg-[#ffffff] text-slate-800 p-12 box-border z-[-50] font-["Plus_Jakarta_Sans"]';
+            const dateStr = new Date().toLocaleString('es-VE', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+            let activeH2 = activeTab.querySelector('h2.text-xl') ? activeTab.querySelector('h2.text-xl').innerText : tabTitle;
+            let activeP = activeTab.querySelector('p.text-xs') ? activeTab.querySelector('p.text-xs').innerText : '';
+
+            printContainer.innerHTML = `<div class="bg-white w-full"><div class="flex justify-between items-start mb-6"><div class="flex flex-col"><h1 class="text-[42px] font-black italic text-[#1e3a8a] tracking-wider leading-tight mb-2">SOLUTRONIC</h1><p class="text-[12px] font-bold text-[#64748b] tracking-[0.1em] uppercase">Reporte Técnico de Ingeniería</p></div><div class="flex flex-col items-end gap-3"><div class="bg-[#f0f9ff] text-[#1e3a8a] font-black uppercase tracking-widest px-8 py-3 rounded-xl border border-blue-100 text-xl shadow-sm">${tabTitle}</div><p class="text-[13px] font-bold text-[#64748b]">${dateStr}</p></div></div><div class="w-full h-1.5 bg-[#1e3a8a] mb-8 mt-2"></div><h2 class="text-2xl font-black text-[#1e293b] mb-2 pt-2">${activeH2}</h2><p class="text-xs font-bold text-[#64748b] uppercase tracking-widest mb-6">${activeP}</p><div id="print-body" class="w-full"></div><div class="mt-12 pt-8 border-t-2 border-slate-100 text-center"><p class="text-[12px] font-bold text-[#94a3b8] uppercase tracking-[0.15em]">Generado automáticamente por Solutronic Suite</p><p class="text-[10px] text-[#cbd5e1] mt-2">Cálculos respaldados por normativa NEC (NFPA 70) / IEC 60364</p></div></div>`;
+
+            const contentClone = activeTab.cloneNode(true); contentClone.classList.remove('hidden', 'animate-[fadeIn_0.3s_ease-in-out]');
+            let h2 = contentClone.querySelector('h2.text-xl'); if(h2) h2.parentElement.remove();
+            let pDesc = contentClone.querySelector('p.text-xs.font-bold.text-slate-400.mt-1'); if(pDesc) pDesc.remove();
+
+            contentClone.querySelectorAll('.glass-card').forEach(c => { c.classList.remove('shadow-md', 'shadow-sm', 'bg-slate-900', 'text-white', 'border-none'); c.classList.add('bg-white', 'border-2', 'border-slate-100', 'rounded-2xl', 'p-6', 'shadow-none'); if(c.classList.contains('bg-gradient-to-br')) { c.classList.remove('bg-gradient-to-br', 'from-white', 'to-fuchsia-50/50', 'to-red-50'); c.classList.add('bg-slate-50'); }});
+            contentClone.querySelectorAll('input, select').forEach((orig, i) => { let clone = contentClone.querySelectorAll('input, select')[i]; if (orig.type === 'checkbox') { if(clone.parentElement) clone.parentElement.style.display = 'none'; } else { let v = orig.tagName === 'SELECT' ? (orig.options[orig.selectedIndex]?.text || '-') : (orig.value || '-'); let span = document.createElement('div'); span.className = 'w-full py-2 px-4 bg-[#f8fafc] border border-slate-200 rounded-xl text-base font-black text-[#1e3a8a] text-center shadow-sm block mt-1'; span.innerText = v; clone.parentNode.replaceChild(span, clone); }});
+            contentClone.querySelectorAll('.label-premium').forEach(l => l.className = 'block text-[11px] font-black text-[#1e3a8a] uppercase tracking-wider mb-1 leading-normal');
+            contentClone.querySelectorAll('.section-title').forEach(t => t.className = 'text-sm font-black text-[#1e3a8a] uppercase tracking-widest border-b-2 border-blue-100 pb-2 mb-4 inline-block w-full');
+            ['button', '.no-print', '#sc-placeholder', '#mot-placeholder', '#afq-placeholder', '#placeholderBar'].forEach(s => contentClone.querySelectorAll(s).forEach(e => e && e.remove()));
+
+            contentClone.querySelectorAll('.bg-fuchsia-600, .bg-indigo-600, .bg-[#1e3a8a], .bg-red-600').forEach(box => { box.classList.remove('bg-fuchsia-600', 'bg-indigo-600', 'bg-[#1e3a8a]', 'bg-red-600', 'text-white'); box.classList.add('bg-slate-50', 'border-2', 'border-slate-200'); box.querySelectorAll('p, h3, span, div').forEach(el => { el.classList.remove('text-fuchsia-200', 'text-fuchsia-100', 'text-indigo-200', 'text-indigo-100', 'text-blue-200', 'text-blue-300', 'text-red-200', 'text-red-100', 'text-white'); el.classList.add('text-slate-800'); });});
+
+            printContainer.querySelector('#print-body').appendChild(contentClone); document.body.appendChild(printContainer);
+            const originalScroll = window.scrollY; window.scrollTo(0, 0);
+
+            html2canvas(printContainer, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1000, logging: false }).then(canvas => {
+                const link = document.createElement('a'); link.download = `Reporte_Solutronic_${tabTitle.replace(/\s+/g, '_')}.jpg`; link.href = canvas.toDataURL('image/jpeg', 0.95); link.click();
+            }).finally(() => { window.scrollTo(0, originalScroll); btn.innerHTML = originalHTML; btn.style.opacity = '1'; btn.disabled = false; document.body.removeChild(printContainer); });
         }
     </script>
 </body>
