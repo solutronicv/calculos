@@ -90,7 +90,7 @@
         <div class="bg-white border-b shadow-sm w-full relative z-40">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4 items-center">
                 <div class="nav-category">
-                    <button class="nav-btn active-cat" id="cat-cables" onclick="toggleDropdown('drop-cables', event)">🔌 Cables & Ductos <span class="text-[10px] opacity-50">▼</span></button>
+                    <button class="nav-btn active-cat" id="cat-cables" onclick="toggleDropdown('drop-cables', event)">🔌 Cables & Tuberias <span class="text-[10px] opacity-50">▼</span></button>
                     <div id="drop-cables" class="dropdown-menu">
                         <a href="#" onclick="switchTab('tab-conductores', this, 'cat-cables')" class="dropdown-item active-item">Corriente y Conductor</a>
                         <a href="#" onclick="switchTab('tab-bandejas', this, 'cat-cables')" class="dropdown-item">Bandejas Portacables</a>
@@ -167,7 +167,8 @@
                             </label>
                             <input type="text" inputmode="decimal" id="potencia-caida" class="input-premium" placeholder="Valor">
                         </div>
-                        <div id="wrapper-fp-caida"><label class="label-premium">FP (cos φ)</label><input type="text" inputmode="decimal" id="fp-caida" class="input-premium" value="0.90"></div>
+                        <div id="wrapper-fp-caida"><label class="label-premium">FP Actual</label><input type="text" inputmode="decimal" id="fp-caida" class="input-premium" value="0.90"></div>
+                        <div id="wrapper-fp-target"><label class="label-premium">FP Deseado</label><input type="text" inputmode="decimal" id="fp-target" class="input-premium" value="0.95"></div>
                         <h3 class="section-title col-span-full mt-2 text-amber-600">Selección Manual (Opcional)</h3>
                         <div class="md:col-span-2">
                             <label class="label-premium">Calibre Manual (AWG / mm²)</label>
@@ -181,7 +182,7 @@
                     
                     <div id="error-msg-caida" class="hidden mt-4 p-3 bg-red-50 text-red-600 rounded-lg text-xs font-bold border border-red-200 no-print"></div>
                     <div id="results-area-caida" class="mt-6 border-t border-slate-200 pt-4 hidden">
-                        <div id="results-list-caida" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                        <div id="results-list-caida" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
                     </div>
                 </div>
             </div>
@@ -667,6 +668,7 @@
         // ============================================================
         //  1. CONDUCTORES
         // ============================================================
+        function toggleManualInputs() { document.getElementById('num-paralelos').disabled = document.getElementById('calibre-manual').value === 'AUTO'; }
         function updateSystem() { document.getElementById('phase-text').innerText = document.getElementById('phase-toggle').checked ? '3Φ' : '1Φ'; }
         
         function calcCaida() {
@@ -679,8 +681,12 @@
                 let i = pSafe(document.getElementById('corriente-caida').value);
                 let pVal = pSafe(document.getElementById('potencia-caida').value);
                 let pUnit = document.getElementById('unidad-potencia-caida').value;
+                
                 let fpRaw = pSafe(document.getElementById('fp-caida').value);
                 let fpSafe = Math.max(0.01, Math.min(Math.abs(isNaN(fpRaw) ? 0.90 : fpRaw), 1));
+                
+                let fpTargetRaw = pSafe(document.getElementById('fp-target').value);
+                let fpTargetSafe = Math.max(0.01, Math.min(Math.abs(isNaN(fpTargetRaw) ? 0.95 : fpTargetRaw), 1));
                 
                 let dist = pSafe(document.getElementById('distancia').value) || 0;
                 let cMax = pSafe(document.getElementById('caida-max').value) || 3;
@@ -737,10 +743,22 @@
                         } 
                     } 
                 }
+                
                 if (encontrado) {
                     let maxAmp90 = (condElegido[ampKey] * cablesP) * 0.9, isSufficient = man === "AUTO" || i <= maxAmp90, boxClass = isSufficient ? "bg-blue-50 border-blue-100" : "bg-red-50 border-red-300";
                     resL.innerHTML += `<div class="p-3 ${boxClass} rounded-xl text-xs font-bold text-slate-600 flex flex-col justify-center border"><span class="text-[10px] uppercase tracking-widest mb-1 text-slate-500">Cable Sugerido</span><span class="${isSufficient?'text-[#1e3a8a]':'text-red-700'} text-lg font-black">${cablesP > 1 ? cablesP+'x ' : ''}${condElegido.label} (${condElegido.mm2})</span><span class="text-[10px] ${isSufficient?'text-blue-600':'text-red-600'} font-normal mt-1">Soporta máx (90%): ${maxAmp90.toFixed(1)} A</span></div>`;
                     resL.innerHTML += `<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex flex-col justify-center text-center"><span class="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Caída Tensión</span><span class="${caidaFinal > cMax ? 'text-red-600' : 'text-[#1e3a8a]'} text-2xl font-black">${caidaFinal.toFixed(2)}%</span></div>`;
+                    
+                    let req_kvar = 0;
+                    if (fpSafe < fpTargetSafe) {
+                        req_kvar = calc_kW * (Math.tan(Math.acos(fpSafe)) - Math.tan(Math.acos(fpTargetSafe)));
+                    }
+                    
+                    if (req_kvar > 0) {
+                        resL.innerHTML += `<div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-slate-600 flex flex-col justify-center text-center"><span class="text-[10px] uppercase tracking-widest text-emerald-600 mb-1">Banco Cap. (FP ${fpTargetSafe.toFixed(2)})</span><span class="text-emerald-700 text-2xl font-black">${req_kvar.toFixed(2)} <span class="text-sm">kVAR</span></span></div>`;
+                    } else {
+                        resL.innerHTML += `<div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 flex flex-col justify-center text-center"><span class="text-[10px] uppercase tracking-widest text-slate-500 mb-1">Banco Cap. (FP ${fpTargetSafe.toFixed(2)})</span><span class="text-slate-400 text-lg font-black">No Requerido</span></div>`;
+                    }
                 } else { err.innerText = "Sin solución automática. Use modo manual."; err.classList.remove('hidden'); }
             } catch (error) { console.error("Error en calcCaida:", error); }
         }
