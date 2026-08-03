@@ -467,7 +467,8 @@
                                         <th class="p-2 sm:p-3 border-b border-slate-200">Tap</th>
                                         <th class="p-2 sm:p-3 border-b border-slate-200 text-center">Variación</th>
                                         <th class="p-2 sm:p-3 border-b border-slate-200 text-center">V. Primario (Tap)</th>
-                                        <th class="p-2 sm:p-3 border-b border-slate-200 text-right text-emerald-700">V. Salida Real</th>
+                                        <th class="p-2 sm:p-3 border-b border-slate-200 text-right text-emerald-700">V. Salida (L-L)</th>
+                                        <th class="p-2 sm:p-3 border-b border-slate-200 text-right text-emerald-600">V. Salida (L-N)</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tx-taps-table" class="text-xs sm:text-sm">
@@ -1077,8 +1078,9 @@
                     // 1. Voltaje nominal del Tap en el devanado primario
                     let tapVoltage = vpri * (1 + (varPercent / 100));
                     
-                    // 2. Voltaje secundario real (relación de transformación aplicada al medido)
-                    let realSecVoltage = (vmed * vsec) / tapVoltage;
+                    // 2. Voltajes secundarios reales (relación de transformación aplicada al medido)
+                    let realSecVoltageLL = (vmed * vsec) / tapVoltage;
+                    let realSecVoltageLN = (fases === 3) ? (realSecVoltageLL / 1.732) : (realSecVoltageLL / 2);
                     
                     let bgClass = (i === 0) ? 'bg-emerald-50 font-bold' : 'bg-white';
                     let varText = (i > 0) ? `+${varPercent.toFixed(1)}%` : `${varPercent.toFixed(1)}%`;
@@ -1088,7 +1090,8 @@
                             <td class="p-2 sm:p-3 text-[#1e3a8a]">Posición ${currentPos}</td>
                             <td class="p-2 sm:p-3 text-center text-slate-600">${varText}</td>
                             <td class="p-2 sm:p-3 text-center text-slate-800 font-black">${tapVoltage.toFixed(0)} V</td>
-                            <td class="p-2 sm:p-3 text-right text-emerald-700 font-black">${realSecVoltage.toFixed(1)} V</td>
+                            <td class="p-2 sm:p-3 text-right text-emerald-700 font-black">${realSecVoltageLL.toFixed(1)} V</td>
+                            <td class="p-2 sm:p-3 text-right text-emerald-600 font-bold">${realSecVoltageLN.toFixed(1)} V</td>
                         </tr>
                     `;
                     currentPos++;
@@ -1111,7 +1114,7 @@
                 document.getElementById('res-tx-ipri').innerText = "0.0";
                 document.getElementById('res-tx-isec').innerText = "0.0";
                 document.getElementById('res-vpri-estimado').innerText = "0";
-                document.getElementById('tx-taps-table').innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 text-xs font-bold uppercase tracking-wider">Ingrese los datos de placa del equipo</td></tr>`;
+                document.getElementById('tx-taps-table').innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs font-bold uppercase tracking-wider">Ingrese los datos de placa del equipo</td></tr>`;
             }
         }
 
