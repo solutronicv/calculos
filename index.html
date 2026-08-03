@@ -394,30 +394,44 @@
         <div id="tab-transformadores" class="tab-content" oninput="calcTransformador()" onchange="calcTransformador()">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Cálculo de Taps en Transformadores</h2>
-                <p class="text-xs font-bold text-slate-400 mt-1">Variación de Tensión y Corriente Nominal</p>
+                <p class="text-xs font-bold text-slate-400 mt-1">Estimación de Tensión Primaria y Secundaria</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
                 <div class="md:col-span-4 space-y-4">
                     <div class="glass-card p-5 border-t-4 border-emerald-500">
-                        <h2 class="section-title text-emerald-800 border-emerald-100">Datos de Placa y Red</h2>
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-3">
-                                <div><label class="label-premium text-emerald-900">Potencia (kVA)</label><input type="text" inputmode="decimal" id="tx-kva" class="input-premium focus:border-emerald-500" value="500"></div>
-                                <div><label class="label-premium text-emerald-900">Fases</label><select id="tx-fases" class="input-premium focus:border-emerald-500"><option value="3" selected>Trifásico (3Φ)</option><option value="1">Monofásico (1Φ)</option></select></div>
-                                <div class="col-span-2"><label class="label-premium text-emerald-900">Voltaje Primario Nominal (V)</label><input type="text" inputmode="decimal" id="tx-vpri" class="input-premium focus:border-emerald-500" value="13800"></div>
-                                <div><label class="label-premium text-emerald-900">V. Sec Nominal</label><input type="text" inputmode="decimal" id="tx-vsec" class="input-premium focus:border-emerald-500" value="480"></div>
-                                <div><label class="label-premium text-emerald-900">Cant. Taps</label>
-                                    <select id="tx-taps" class="input-premium focus:border-emerald-500">
-                                        <option value="3">3 (±2.5%)</option>
-                                        <option value="5" selected>5 (±5%)</option>
-                                        <option value="7">7 (±7.5%)</option>
-                                    </select>
+                        <h2 class="section-title text-emerald-800 border-emerald-100">1. Datos de Placa</h2>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div><label class="label-premium text-emerald-900">Potencia (kVA)</label><input type="text" inputmode="decimal" id="tx-kva" class="input-premium focus:border-emerald-500" value="500"></div>
+                            <div><label class="label-premium text-emerald-900">Fases</label><select id="tx-fases" class="input-premium focus:border-emerald-500"><option value="3" selected>Trifásico (3Φ)</option><option value="1">Monofásico (1Φ)</option></select></div>
+                            <div class="col-span-2"><label class="label-premium text-emerald-900">V. Primario Nominal (V)</label><input type="text" inputmode="decimal" id="tx-vpri" class="input-premium focus:border-emerald-500" value="13800"></div>
+                            <div><label class="label-premium text-emerald-900">V. Sec Nominal</label><input type="text" inputmode="decimal" id="tx-vsec" class="input-premium focus:border-emerald-500" value="480"></div>
+                            <div><label class="label-premium text-emerald-900">Cant. Taps</label>
+                                <select id="tx-taps" class="input-premium focus:border-emerald-500">
+                                    <option value="3">3 (±2.5%)</option>
+                                    <option value="5" selected>5 (±5%)</option>
+                                    <option value="7">7 (±7.5%)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-5 border-t-4 border-fuchsia-500">
+                        <h2 class="section-title text-fuchsia-800 border-fuchsia-100 mb-3">2. Estimación Inversa</h2>
+                        <div class="p-3 bg-fuchsia-50 border border-fuchsia-200 rounded-xl report-keep-bg">
+                            <label class="label-premium text-fuchsia-900 mb-2">Conozco el V. Secundario</label>
+                            <div class="grid grid-cols-2 gap-2 mb-3">
+                                <div>
+                                    <span class="text-[9px] font-bold text-fuchsia-700 uppercase">V. Sec. Medido (V)</span>
+                                    <input type="text" inputmode="decimal" id="tx-vsec-medido" class="input-premium bg-white focus:border-fuchsia-500 text-sm" placeholder="Ej: 460">
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-bold text-fuchsia-700 uppercase">Tap Actual Trafo</span>
+                                    <select id="tx-tap-actual" class="input-premium bg-white focus:border-fuchsia-500 text-sm"></select>
                                 </div>
                             </div>
-                            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl report-keep-bg">
-                                <label class="label-premium text-emerald-900">Voltaje Primario Medido (V)</label>
-                                <input type="text" inputmode="decimal" id="tx-vmedido" class="input-premium border-emerald-300 focus:border-emerald-600 bg-white" value="13800">
-                                <p class="text-[9px] text-emerald-700 mt-1 font-bold leading-tight">Ingrese el voltaje REAL que está llegando a la planta para ver el efecto en el secundario.</p>
+                            <div class="mt-2 text-center bg-white p-3 rounded-lg border border-fuchsia-100 shadow-sm">
+                                <span class="text-[10px] text-fuchsia-600 font-bold uppercase tracking-wider">Voltaje Entrada Real</span>
+                                <p class="text-2xl font-black text-fuchsia-800 mt-1"><span id="res-vpri-estimado">0</span> <span class="text-sm">V</span></p>
                             </div>
                         </div>
                     </div>
@@ -434,14 +448,25 @@
                                 <p class="text-3xl font-black text-emerald-600 mt-2"><span id="res-tx-isec">0.0</span>A</p>
                             </div>
                         </div>
-                        <h3 class="section-title">Comportamiento del Voltaje por Tap</h3>
+
+                        <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl mb-4 flex items-center gap-4 report-keep-bg">
+                            <div class="flex-grow">
+                                <label class="label-premium text-blue-900 mb-1">Voltaje Primario Medido (V)</label>
+                                <input type="text" inputmode="decimal" id="tx-vmedido" class="input-premium border-blue-300 focus:border-blue-600 bg-white" value="13800">
+                            </div>
+                            <div class="flex-shrink-0 text-[10px] font-bold text-blue-700 leading-tight w-1/2">
+                                Modifica este valor para ver cómo reacciona el V. Salida Real en la tabla inferior según cada posición de Tap.
+                            </div>
+                        </div>
+
+                        <h3 class="section-title mt-2">Comportamiento del Voltaje por Tap</h3>
                         <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm w-full">
                             <table class="w-full text-left border-collapse min-w-[400px]">
                                 <thead>
                                     <tr class="bg-slate-100 text-slate-600 text-[9px] sm:text-[10px] uppercase tracking-wider">
                                         <th class="p-2 sm:p-3 border-b border-slate-200">Tap</th>
                                         <th class="p-2 sm:p-3 border-b border-slate-200 text-center">Variación</th>
-                                        <th class="p-2 sm:p-3 border-b border-slate-200 text-center">V. Primario</th>
+                                        <th class="p-2 sm:p-3 border-b border-slate-200 text-center">V. Primario (Tap)</th>
                                         <th class="p-2 sm:p-3 border-b border-slate-200 text-right text-emerald-700">V. Salida Real</th>
                                     </tr>
                                 </thead>
@@ -450,7 +475,6 @@
                                 </tbody>
                             </table>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-4 text-center">Cálculo de voltaje de salida basado en la relación de transformación y la tensión medida en la red.</p>
                     </div>
                 </div>
             </div>
@@ -1013,6 +1037,24 @@
             let fases = parseInt(document.getElementById('tx-fases').value) || 3;
             let tapCount = parseInt(document.getElementById('tx-taps').value) || 5;
 
+            // Inicializar Select de Tap Actual dinámicamente
+            let selectTap = document.getElementById('tx-tap-actual');
+            if (parseInt(selectTap.dataset.count) !== tapCount) {
+                let currentVal = selectTap.value;
+                selectTap.innerHTML = '';
+                let maxSteps = Math.floor(tapCount / 2);
+                let currentPos = 1;
+                for (let i = maxSteps; i >= -maxSteps; i--) {
+                    let varPercent = i * 2.5;
+                    let varText = (i > 0) ? `+${varPercent.toFixed(1)}%` : `${varPercent.toFixed(1)}%`;
+                    selectTap.add(new Option(`Pos. ${currentPos} (${varText})`, i));
+                    currentPos++;
+                }
+                if (Array.from(selectTap.options).some(o => o.value === currentVal)) selectTap.value = currentVal;
+                else selectTap.value = "0";
+                selectTap.dataset.count = tapCount;
+            }
+
             let k = (fases === 3) ? 1.732 : 1;
 
             if (kva > 0 && vpri > 0 && vsec > 0) {
@@ -1028,13 +1070,14 @@
                 let maxSteps = Math.floor(tapCount / 2);
                 let currentPos = 1;
 
+                // Generar tabla
                 for (let i = maxSteps; i >= -maxSteps; i--) {
                     let varPercent = i * 2.5;
                     
                     // 1. Voltaje nominal del Tap en el devanado primario
                     let tapVoltage = vpri * (1 + (varPercent / 100));
                     
-                    // 2. Voltaje secundario real (se aplica la relación de transformación al voltaje de red medido)
+                    // 2. Voltaje secundario real (relación de transformación aplicada al medido)
                     let realSecVoltage = (vmed * vsec) / tapVoltage;
                     
                     let bgClass = (i === 0) ? 'bg-emerald-50 font-bold' : 'bg-white';
@@ -1050,9 +1093,24 @@
                     `;
                     currentPos++;
                 }
+
+                // Cálculo Inverso (Conozco V. Secundario -> Quiero Entrada Real)
+                let vsecMed = pSafe(document.getElementById('tx-vsec-medido').value) || 0;
+                let tapActualIndex = parseInt(document.getElementById('tx-tap-actual').value) || 0;
+                if (vsecMed > 0) {
+                    let varPercentActual = tapActualIndex * 2.5;
+                    let tapVoltageActual = vpri * (1 + (varPercentActual / 100));
+                    // Relación exacta: Vpri_real / Vsec_medido = Vpri_tap / Vsec_nom
+                    let vpriEstimado = vsecMed * (tapVoltageActual / vsec);
+                    document.getElementById('res-vpri-estimado').innerText = vpriEstimado.toFixed(0);
+                } else {
+                    document.getElementById('res-vpri-estimado').innerText = "0";
+                }
+
             } else {
                 document.getElementById('res-tx-ipri').innerText = "0.0";
                 document.getElementById('res-tx-isec').innerText = "0.0";
+                document.getElementById('res-vpri-estimado').innerText = "0";
                 document.getElementById('tx-taps-table').innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 text-xs font-bold uppercase tracking-wider">Ingrese los datos de placa del equipo</td></tr>`;
             }
         }
