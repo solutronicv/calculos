@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Solutronic Calculos - Ingeniería Eléctrica</title>
+    <title>Solutronic Suite - Ingeniería Eléctrica</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
@@ -50,15 +50,9 @@
         @media (max-width: 640px) {
             .nav-category { flex: 1 1 45%; } 
             .nav-btn { font-size: 0.65rem; padding: 0.6rem 0.2rem; min-height: 48px; }
-            /* CORRECCIÓN: dropdown ocupa todo el ancho y se alinea a la izquierda */
             .dropdown-menu { 
-                left: 0 !important; 
-                transform: none !important; 
-                width: 100% !important; 
-                max-width: 100% !important; 
-                top: 100%; 
-                margin-top: 0.4rem; 
-                border-radius: 1rem; 
+                left: 0 !important; transform: none !important; width: 100% !important; 
+                max-width: 100% !important; top: 100%; margin-top: 0.4rem; border-radius: 1rem; 
             }
             .dropdown-item { padding: 1rem 1.2rem; font-size: 0.9rem; min-height: 52px; } 
         }
@@ -90,7 +84,7 @@
         <div class="bg-white border-b shadow-sm w-full relative z-40">
             <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4 items-center">
                 <div class="nav-category">
-                    <button class="nav-btn active-cat" id="cat-cables" onclick="toggleDropdown('drop-cables', event)">🔌 Cables & Tuberias <span class="text-[10px] opacity-50">▼</span></button>
+                    <button class="nav-btn active-cat" id="cat-cables" onclick="toggleDropdown('drop-cables', event)">🔌 Cables & Ductos <span class="text-[10px] opacity-50">▼</span></button>
                     <div id="drop-cables" class="dropdown-menu">
                         <a href="#" onclick="switchTab('tab-conductores', this, 'cat-cables')" class="dropdown-item active-item">Corriente y Conductor</a>
                         <a href="#" onclick="switchTab('tab-bandejas', this, 'cat-cables')" class="dropdown-item">Bandejas Portacables</a>
@@ -102,6 +96,7 @@
                     <div id="drop-calidad" class="dropdown-menu">
                         <a href="#" onclick="switchTab('tab-capacitores', this, 'cat-calidad')" class="dropdown-item">Bancos de Capacitores</a>
                         <a href="#" onclick="switchTab('tab-armonicos', this, 'cat-calidad')" class="dropdown-item">Filtros Armónicos (AFQ)</a>
+                        <a href="#" onclick="switchTab('tab-transformadores', this, 'cat-calidad')" class="dropdown-item">Taps de Transformadores</a>
                     </div>
                 </div>
                 <div class="nav-category">
@@ -395,6 +390,72 @@
             </div>
         </div>
 
+        <!-- ========== TAB TRANSFORMADORES ========== -->
+        <div id="tab-transformadores" class="tab-content" oninput="calcTransformador()" onchange="calcTransformador()">
+            <div class="mb-4">
+                <h2 class="text-xl font-black text-slate-800">Cálculo de Taps en Transformadores</h2>
+                <p class="text-xs font-bold text-slate-400 mt-1">Variación de Tensión y Corriente Nominal</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <div class="md:col-span-4 space-y-4">
+                    <div class="glass-card p-5 border-t-4 border-emerald-500">
+                        <h2 class="section-title text-emerald-800 border-emerald-100">Datos de Placa y Red</h2>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-2 gap-3">
+                                <div><label class="label-premium text-emerald-900">Potencia (kVA)</label><input type="text" inputmode="decimal" id="tx-kva" class="input-premium focus:border-emerald-500" value="500"></div>
+                                <div><label class="label-premium text-emerald-900">Fases</label><select id="tx-fases" class="input-premium focus:border-emerald-500"><option value="3" selected>Trifásico (3Φ)</option><option value="1">Monofásico (1Φ)</option></select></div>
+                                <div class="col-span-2"><label class="label-premium text-emerald-900">Voltaje Primario Nominal (V)</label><input type="text" inputmode="decimal" id="tx-vpri" class="input-premium focus:border-emerald-500" value="13800"></div>
+                                <div><label class="label-premium text-emerald-900">V. Sec Nominal</label><input type="text" inputmode="decimal" id="tx-vsec" class="input-premium focus:border-emerald-500" value="480"></div>
+                                <div><label class="label-premium text-emerald-900">Cant. Taps</label>
+                                    <select id="tx-taps" class="input-premium focus:border-emerald-500">
+                                        <option value="3">3 (±2.5%)</option>
+                                        <option value="5" selected>5 (±5%)</option>
+                                        <option value="7">7 (±7.5%)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl report-keep-bg">
+                                <label class="label-premium text-emerald-900">Voltaje Primario Medido (V)</label>
+                                <input type="text" inputmode="decimal" id="tx-vmedido" class="input-premium border-emerald-300 focus:border-emerald-600 bg-white" value="13800">
+                                <p class="text-[9px] text-emerald-700 mt-1 font-bold leading-tight">Ingrese el voltaje REAL que está llegando a la planta para ver el efecto en el secundario.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-8">
+                    <div class="glass-card p-6 h-full flex flex-col justify-start">
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-center shadow-sm">
+                                <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">I. Máxima Primario</p>
+                                <p class="text-3xl font-black text-slate-800 mt-2"><span id="res-tx-ipri">0.0</span>A</p>
+                            </div>
+                            <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 text-center shadow-sm">
+                                <p class="text-[10px] uppercase font-bold text-emerald-800 tracking-wider">I. Máxima Secundario</p>
+                                <p class="text-3xl font-black text-emerald-600 mt-2"><span id="res-tx-isec">0.0</span>A</p>
+                            </div>
+                        </div>
+                        <h3 class="section-title">Comportamiento del Voltaje por Tap</h3>
+                        <div class="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-600 text-[10px] uppercase tracking-wider">
+                                        <th class="p-3 border-b border-slate-200">Tap</th>
+                                        <th class="p-3 border-b border-slate-200 text-center">Variación</th>
+                                        <th class="p-3 border-b border-slate-200 text-center">V. Primario (Tap)</th>
+                                        <th class="p-3 border-b border-slate-200 text-right text-emerald-700">V. Salida Real</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tx-taps-table" class="text-sm">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-4 text-center">Cálculo de voltaje de salida basado en la relación de transformación y la tensión medida en la red.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ========== TAB CORTOCIRCUITO ========== -->
         <div id="tab-cortocircuito" class="tab-content" oninput="calcCortoCircuito()" onchange="calcCortoCircuito()">
             <div class="mb-4">
@@ -463,6 +524,7 @@
                         <div class="p-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl shadow-md text-center">
                             <p class="text-[10px] uppercase font-black tracking-widest opacity-90">Barra Desnuda de Cobre Sugerida (Sección)</p>
                             <p id="busbarSizeBar" class="text-3xl font-black mt-2 drop-shadow-sm">-</p>
+                            <p id="busbarMaxAmp" class="text-sm font-bold text-orange-100 mt-1 hidden"></p>
                         </div>
                     </div>
                     <div id="placeholderBar" class="h-full flex flex-col items-center justify-center text-center py-6 text-slate-400">
@@ -897,7 +959,27 @@
         //  7. BARRAS
         // ============================================================
         const busB = [{s:"15 mm x 3 mm",a:180},{s:"20 mm x 5 mm",a:330},{s:"30 mm x 5 mm",a:450},{s:"40 mm x 5 mm",a:580},{s:"50 mm x 10 mm",a:1150},{s:"80 mm x 10 mm",a:1750},{s:"100 mm x 10 mm",a:2150}];
-        function calcBarras() { let ib = pSafe(document.getElementById('manualCurrentBar').value); if(ib > 0) { let id = ib / 0.9; document.getElementById('calcCurrentBar').innerText = ib.toFixed(1) + " A"; document.getElementById('designCurrentBar').innerText = id.toFixed(1) + " A"; let bs = busB.find(b=>b.a >= id); document.getElementById('busbarSizeBar').innerText = bs ? bs.s : "Consultar Ing."; document.getElementById('resultsBar').classList.remove('hidden'); document.getElementById('placeholderBar').classList.add('hidden'); } else { document.getElementById('resultsBar').classList.add('hidden'); document.getElementById('placeholderBar').classList.remove('hidden'); } }
+        function calcBarras() { 
+            let ib = pSafe(document.getElementById('manualCurrentBar').value); 
+            if(ib > 0) { 
+                let id = ib / 0.9; 
+                document.getElementById('calcCurrentBar').innerText = ib.toFixed(1) + " A"; 
+                document.getElementById('designCurrentBar').innerText = id.toFixed(1) + " A"; 
+                let bs = busB.find(b=>b.a >= id); 
+                document.getElementById('busbarSizeBar').innerText = bs ? bs.s : "Consultar Ing."; 
+                if (bs) {
+                    document.getElementById('busbarMaxAmp').innerText = "Soporta máx: " + bs.a + " A";
+                    document.getElementById('busbarMaxAmp').classList.remove('hidden');
+                } else {
+                    document.getElementById('busbarMaxAmp').classList.add('hidden');
+                }
+                document.getElementById('resultsBar').classList.remove('hidden'); 
+                document.getElementById('placeholderBar').classList.add('hidden'); 
+            } else { 
+                document.getElementById('resultsBar').classList.add('hidden'); 
+                document.getElementById('placeholderBar').classList.remove('hidden'); 
+            } 
+        }
 
         // ============================================================
         //  8. PUESTA A TIERRA
@@ -921,6 +1003,61 @@
         function calcIluminacion() { let l = pSafe(document.getElementById('largo-ilum').value)||0, a = pSafe(document.getElementById('ancho-ilum').value)||0, h = pSafe(document.getElementById('altura-ilum').value)||0, lux = pSafe(document.getElementById('lux-ilum').value)||0, lum = pSafe(document.getElementById('lumen-ilum').value)||0; if((l*a) > 0 && lux > 0 && lum > 0) { let qty = Math.ceil((lux * l * a) / (lum * 0.6 * 0.8)); document.getElementById('res-lum-qty').innerText = qty; let nx = Math.round(Math.sqrt(qty * (l / a))) || 1, ny = Math.ceil(qty / nx) || 1; document.getElementById('sep-largo').innerText = (l / nx).toFixed(2) + " m"; document.getElementById('sep-ancho').innerText = (a / ny).toFixed(2) + " m"; } else { document.getElementById('res-lum-qty').innerText = "0"; document.getElementById('sep-largo').innerText = "-"; document.getElementById('sep-ancho').innerText = "-"; } }
 
         // ============================================================
+        // 12. TRANSFORMADORES
+        // ============================================================
+        function calcTransformador() {
+            let kva = pSafe(document.getElementById('tx-kva').value) || 0;
+            let vpri = pSafe(document.getElementById('tx-vpri').value) || 0;
+            let vsec = pSafe(document.getElementById('tx-vsec').value) || 0;
+            let vmed = pSafe(document.getElementById('tx-vmedido').value) || vpri;
+            let fases = parseInt(document.getElementById('tx-fases').value) || 3;
+            let tapCount = parseInt(document.getElementById('tx-taps').value) || 5;
+
+            let k = (fases === 3) ? 1.732 : 1;
+
+            if (kva > 0 && vpri > 0 && vsec > 0) {
+                let ipri = (kva * 1000) / (k * vpri);
+                let isec = (kva * 1000) / (k * vsec);
+
+                document.getElementById('res-tx-ipri').innerText = ipri.toFixed(1);
+                document.getElementById('res-tx-isec').innerText = isec.toFixed(1);
+
+                let tbody = document.getElementById('tx-taps-table');
+                tbody.innerHTML = '';
+
+                let maxSteps = Math.floor(tapCount / 2);
+                let currentPos = 1;
+
+                for (let i = maxSteps; i >= -maxSteps; i--) {
+                    let varPercent = i * 2.5;
+                    
+                    // 1. Voltaje nominal del Tap en el devanado primario
+                    let tapVoltage = vpri * (1 + (varPercent / 100));
+                    
+                    // 2. Voltaje secundario real (se aplica la relación de transformación al voltaje de red medido)
+                    let realSecVoltage = (vmed * vsec) / tapVoltage;
+                    
+                    let bgClass = (i === 0) ? 'bg-emerald-50 font-bold' : 'bg-white';
+                    let varText = (i > 0) ? `+${varPercent.toFixed(1)}%` : `${varPercent.toFixed(1)}%`;
+                    
+                    tbody.innerHTML += `
+                        <tr class="${bgClass} border-b border-slate-100 last:border-0 hover:bg-slate-50 transition">
+                            <td class="p-3 text-[#1e3a8a]">Posición ${currentPos}</td>
+                            <td class="p-3 text-center text-slate-600">${varText}</td>
+                            <td class="p-3 text-center text-slate-800 font-black">${tapVoltage.toFixed(0)} V</td>
+                            <td class="p-3 text-right text-emerald-700 font-black">${realSecVoltage.toFixed(1)} V</td>
+                        </tr>
+                    `;
+                    currentPos++;
+                }
+            } else {
+                document.getElementById('res-tx-ipri').innerText = "0.0";
+                document.getElementById('res-tx-isec').innerText = "0.0";
+                document.getElementById('tx-taps-table').innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400 text-xs font-bold uppercase tracking-wider">Ingrese los datos de placa del equipo</td></tr>`;
+            }
+        }
+
+        // ============================================================
         //  INICIALIZACIÓN
         // ============================================================
         function populate() {
@@ -934,7 +1071,7 @@
 
         window.onload = () => { 
             populate(); 
-            calcCaida(); calcTuberia(); calculateTheory(); calcFiltros(); calcCortoCircuito(); calcMotor(); calcTray(); 
+            calcCaida(); calcTuberia(); calculateTheory(); calcFiltros(); calcCortoCircuito(); calcMotor(); calcTray(); calcTransformador();
         }
 
         // ============================================================
@@ -966,7 +1103,7 @@
             contentClone.querySelectorAll('.section-title').forEach(t => t.className = 'text-sm font-black text-[#1e3a8a] uppercase tracking-widest border-b-2 border-blue-100 pb-2 mb-4 inline-block w-full');
             ['button', '.no-print', '#sc-placeholder', '#mot-placeholder', '#afq-placeholder', '#placeholderBar'].forEach(s => contentClone.querySelectorAll(s).forEach(e => e && e.remove()));
 
-            contentClone.querySelectorAll('.bg-fuchsia-600, .bg-indigo-600, .bg-[#1e3a8a], .bg-red-600').forEach(box => { box.classList.remove('bg-fuchsia-600', 'bg-indigo-600', 'bg-[#1e3a8a]', 'bg-red-600', 'text-white'); box.classList.add('bg-slate-50', 'border-2', 'border-slate-200'); box.querySelectorAll('p, h3, span, div').forEach(el => { el.classList.remove('text-fuchsia-200', 'text-fuchsia-100', 'text-indigo-200', 'text-indigo-100', 'text-blue-200', 'text-blue-300', 'text-red-200', 'text-red-100', 'text-white'); el.classList.add('text-slate-800'); });});
+            contentClone.querySelectorAll('.bg-fuchsia-600, .bg-indigo-600, .bg-[#1e3a8a], .bg-red-600, .bg-emerald-50').forEach(box => { box.classList.remove('bg-fuchsia-600', 'bg-indigo-600', 'bg-[#1e3a8a]', 'bg-red-600', 'text-white'); box.classList.add('bg-slate-50', 'border-2', 'border-slate-200'); box.querySelectorAll('p, h3, span, div').forEach(el => { el.classList.remove('text-fuchsia-200', 'text-fuchsia-100', 'text-indigo-200', 'text-indigo-100', 'text-blue-200', 'text-blue-300', 'text-red-200', 'text-red-100', 'text-white'); el.classList.add('text-slate-800'); });});
 
             printContainer.querySelector('#print-body').appendChild(contentClone); document.body.appendChild(printContainer);
             const originalScroll = window.scrollY; window.scrollTo(0, 0);
