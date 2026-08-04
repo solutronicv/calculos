@@ -536,24 +536,62 @@
                 <p class="text-xs font-bold text-slate-400 mt-1">Cumplimiento: DIN 43671 / IEC 61439</p>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <div class="md:col-span-4 glass-card p-5 space-y-4">
-                    <h2 class="section-title">Variables de Carga</h2>
-                    <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><label class="label-premium text-[#1e3a8a]">Amperaje Directo</label><input type="text" inputmode="decimal" id="manualCurrentBar" class="input-premium bg-white"></div>
-                </div>
-                <div class="md:col-span-8 glass-card p-5 border-t-4 border-[#1e3a8a] flex flex-col justify-center min-h-[250px]">
-                    <div id="resultsBar" class="space-y-4 hidden">
-                        <div class="flex gap-2 text-center">
-                            <div class="flex-1 bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-[10px] uppercase font-bold text-slate-500 mb-1">I Base Sistema</p><p id="calcCurrentBar" class="text-2xl font-black text-[#1e3a8a]">0A</p></div>
-                            <div class="flex-1 bg-[#1e3a8a] text-white p-3 rounded-xl shadow-md"><p class="text-[10px] uppercase font-bold text-blue-200 mb-1">I Diseño (Máx 90%)</p><p id="designCurrentBar" class="text-2xl font-black text-white">0A</p></div>
-                        </div>
-                        <div class="p-5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl shadow-md text-center">
-                            <p class="text-[10px] uppercase font-black tracking-widest opacity-90">Barra Desnuda de Cobre Sugerida (Sección)</p>
-                            <p id="busbarSizeBar" class="text-3xl font-black mt-2 drop-shadow-sm">-</p>
-                            <p id="busbarMaxAmp" class="text-sm font-bold text-orange-100 mt-1 hidden"></p>
+                <div class="md:col-span-4 space-y-4">
+                    <div class="glass-card p-5 border-t-4 border-[#1e3a8a]">
+                        <h2 class="section-title text-[#1e3a8a] border-blue-100">1. Selección Automática</h2>
+                        <div class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+                            <label class="label-premium text-[#1e3a8a]">Amperaje Directo (A)</label>
+                            <input type="text" inputmode="decimal" id="manualCurrentBar" class="input-premium bg-white focus:border-blue-500" placeholder="Ej: 500">
                         </div>
                     </div>
-                    <div id="placeholderBar" class="h-full flex flex-col items-center justify-center text-center py-6 text-slate-400">
-                        <p class="font-medium text-sm uppercase tracking-wider">Ingrese un amperaje para calcular</p>
+                    
+                    <div class="glass-card p-5 border-t-4 border-orange-500">
+                        <h2 class="section-title text-orange-800 border-orange-100 mb-3">2. Cálculo Inverso</h2>
+                        <div class="p-3 bg-orange-50 border border-orange-200 rounded-xl report-keep-bg">
+                            <label class="label-premium text-orange-900 mb-2">Dimensiones Manuales (Cu)</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <span class="text-[9px] font-bold text-orange-700 uppercase">Ancho (mm)</span>
+                                    <input type="text" inputmode="decimal" id="bar-ancho" class="input-premium bg-white focus:border-orange-500 text-sm" placeholder="Ej: 50">
+                                </div>
+                                <div>
+                                    <span class="text-[9px] font-bold text-orange-700 uppercase">Espesor (mm)</span>
+                                    <input type="text" inputmode="decimal" id="bar-espesor" class="input-premium bg-white focus:border-orange-500 text-sm" placeholder="Ej: 10">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="md:col-span-8 space-y-4">
+                    <div class="glass-card p-6 border-t-4 border-[#1e3a8a] flex flex-col justify-center min-h-[220px]">
+                        <div id="resultsBar" class="space-y-4 hidden">
+                            <div class="flex gap-2 text-center">
+                                <div class="flex-1 bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-[10px] uppercase font-bold text-slate-500 mb-1">I Base Sistema</p><p id="calcCurrentBar" class="text-2xl font-black text-[#1e3a8a]">0A</p></div>
+                                <div class="flex-1 bg-[#1e3a8a] text-white p-3 rounded-xl shadow-md"><p class="text-[10px] uppercase font-bold text-blue-200 mb-1">I Diseño (Máx 90%)</p><p id="designCurrentBar" class="text-2xl font-black text-white">0A</p></div>
+                            </div>
+                            <div class="p-5 bg-gradient-to-r from-[#1e3a8a] to-blue-600 text-white rounded-xl shadow-md text-center report-keep-bg">
+                                <p class="text-[10px] uppercase font-black tracking-widest opacity-90 text-blue-200">Barra Desnuda Sugerida (Sección)</p>
+                                <p id="busbarSizeBar" class="text-3xl font-black mt-2 drop-shadow-sm text-white">-</p>
+                                <p id="busbarMaxAmp" class="text-sm font-bold text-emerald-300 mt-1 hidden"></p>
+                            </div>
+                        </div>
+                        <div id="placeholderBar" class="h-full flex flex-col items-center justify-center text-center py-4 text-slate-400">
+                            <p class="font-medium text-sm uppercase tracking-wider">Ingrese un amperaje para calcular barra sugerida</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 border-t-4 border-orange-500 flex flex-col justify-center min-h-[120px]">
+                         <div id="resultsBarManual" class="hidden flex items-center justify-between bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+                             <div>
+                                 <p class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Capacidad Máxima Estimada</p>
+                                 <p class="text-sm text-slate-500 font-bold mt-1">Barra de <span id="res-bar-dim" class="text-orange-700 font-black">0 x 0</span> mm</p>
+                             </div>
+                             <p class="text-4xl font-black text-orange-600"><span id="res-bar-amp">0</span> <span class="text-xl">A</span></p>
+                         </div>
+                         <div id="placeholderBarManual" class="h-full flex flex-col items-center justify-center text-center py-2 text-slate-400">
+                            <p class="font-medium text-[11px] uppercase tracking-wider font-bold">Ingrese ancho y espesor para calcular su capacidad</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -985,6 +1023,7 @@
         // ============================================================
         const busB = [{s:"15 mm x 3 mm",a:180},{s:"20 mm x 5 mm",a:330},{s:"30 mm x 5 mm",a:450},{s:"40 mm x 5 mm",a:580},{s:"50 mm x 10 mm",a:1150},{s:"80 mm x 10 mm",a:1750},{s:"100 mm x 10 mm",a:2150}];
         function calcBarras() { 
+            // 1. Selección Automática
             let ib = pSafe(document.getElementById('manualCurrentBar').value); 
             if(ib > 0) { 
                 let id = ib / 0.9; 
@@ -1004,6 +1043,21 @@
                 document.getElementById('resultsBar').classList.add('hidden'); 
                 document.getElementById('placeholderBar').classList.remove('hidden'); 
             } 
+
+            // 2. Cálculo Inverso (Ingreso Manual de Medidas)
+            let bAncho = pSafe(document.getElementById('bar-ancho').value);
+            let bEspesor = pSafe(document.getElementById('bar-espesor').value);
+            if (bAncho > 0 && bEspesor > 0) {
+                // Fórmula empírica ajustada a la norma DIN 43671 para Cu a 35°C de incremento
+                let ampMax = 7 * bAncho * Math.pow(bEspesor, 0.5);
+                document.getElementById('res-bar-dim').innerText = bAncho + " x " + bEspesor;
+                document.getElementById('res-bar-amp').innerText = Math.round(ampMax);
+                document.getElementById('resultsBarManual').classList.remove('hidden');
+                document.getElementById('placeholderBarManual').classList.add('hidden');
+            } else {
+                document.getElementById('resultsBarManual').classList.add('hidden');
+                document.getElementById('placeholderBarManual').classList.remove('hidden');
+            }
         }
 
         // ============================================================
@@ -1150,7 +1204,7 @@
 
         window.onload = () => { 
             populate(); 
-            calcCaida(); calcTuberia(); calculateTheory(); calcFiltros(); calcCortoCircuito(); calcMotor(); calcTray(); calcTransformador();
+            calcCaida(); calcTuberia(); calculateTheory(); calcFiltros(); calcCortoCircuito(); calcMotor(); calcTray(); calcTransformador(); calcBarras();
         }
 
         // ============================================================
