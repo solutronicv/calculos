@@ -422,11 +422,11 @@
                             <div class="grid grid-cols-2 gap-2 mb-3">
                                 <div>
                                     <span class="text-[9px] font-bold text-fuchsia-700 uppercase">V. Sec. Medido (V)</span>
-                                    <input type="text" inputmode="decimal" id="tx-vsec-medido" class="input-premium bg-white focus:border-fuchsia-500 text-sm" placeholder="Ej: 460">
+                                    <input type="text" inputmode="decimal" id="tx-vsec-medido" class="input-premium bg-white focus:border-fuchsia-500 text-sm" placeholder="Ej: 460" oninput="calcTransformador('sec')">
                                 </div>
                                 <div>
                                     <span class="text-[9px] font-bold text-fuchsia-700 uppercase">Tap Actual Trafo</span>
-                                    <select id="tx-tap-actual" class="input-premium bg-white focus:border-fuchsia-500 text-sm"></select>
+                                    <select id="tx-tap-actual" class="input-premium bg-white focus:border-fuchsia-500 text-sm" onchange="calcTransformador('sec')"></select>
                                 </div>
                             </div>
                             <div class="mt-2 text-center bg-white p-3 rounded-lg border border-fuchsia-100 shadow-sm">
@@ -452,7 +452,7 @@
                         <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl mb-4 flex items-center gap-4 report-keep-bg">
                             <div class="flex-grow">
                                 <label class="label-premium text-blue-900 mb-1">Voltaje Primario Medido (V)</label>
-                                <input type="text" inputmode="decimal" id="tx-vmedido" class="input-premium border-blue-300 focus:border-blue-600 bg-white" value="13800">
+                                <input type="text" inputmode="decimal" id="tx-vmedido" class="input-premium border-blue-300 focus:border-blue-600 bg-white" value="13800" oninput="calcTransformador('pri')">
                             </div>
                             <div class="flex-shrink-0 text-[10px] font-bold text-blue-700 leading-tight w-1/2">
                                 Modifica este valor para ver cómo reacciona el V. Salida Real en la tabla inferior según cada posición de Tap.
@@ -1030,11 +1030,18 @@
         // ============================================================
         // 12. TRANSFORMADORES
         // ============================================================
-        function calcTransformador() {
+        function calcTransformador(source) {
+            // Registrar qué input está usando el usuario (pri o sec)
+            if (source) window.lastTxSource = source;
+            if (!window.lastTxSource) window.lastTxSource = 'pri';
+
             let kva = pSafe(document.getElementById('tx-kva').value) || 0;
             let vpri = pSafe(document.getElementById('tx-vpri').value) || 0;
             let vsec = pSafe(document.getElementById('tx-vsec').value) || 0;
-            let vmed = pSafe(document.getElementById('tx-vmedido').value) || vpri;
+            let vmedField = document.getElementById('tx-vmedido');
+            let vsecMedField = document.getElementById('tx-vsec-medido');
+            let vmed = pSafe(vmedField.value);
+            let vsecMed = pSafe(vsecMedField.value);
             let fases = parseInt(document.getElementById('tx-fases').value) || 3;
             let tapCount = parseInt(document.getElementById('tx-taps').value) || 5;
 
@@ -1052,10 +1059,11 @@
                     currentPos++;
                 }
                 if (Array.from(selectTap.options).some(o => o.value === currentVal)) selectTap.value = currentVal;
-                else selectTap.value = "0";
+                else selectTap.value = "0"; // Default Tap (Centro)
                 selectTap.dataset.count = tapCount;
             }
 
+            let tapActualIndex = parseInt(selectTap.value) || 0;
             let k = (fases === 3) ? 1.732 : 1;
 
             if (kva > 0 && vpri > 0 && vsec > 0) {
@@ -1065,24 +1073,47 @@
                 document.getElementById('res-tx-ipri').innerText = ipri.toFixed(1);
                 document.getElementById('res-tx-isec').innerText = isec.toFixed(1);
 
+                // --- LÓGICA DE SINCRONIZACIÓN BIDIURECCIONAL ---
+                let varPercentActual = tapActualIndex * 2.5;
+                let tapVoltageActual = vpri * (1 + (varPercentActual / 100));
+                let vpriEffective = vpri;
+
+                if (window.lastTxSource === 'sec' && vsecMed > 0) {
+                    // Calculamos el Primario a partir del Secundario Medido
+                    vpriEffective = vsecMed * (tapVoltageActual / vsec);
+                    // Solo sobreescribimos el campo del primario si no estamos tipeando activamente en él
+                    if (document.activeElement !== vmedField) {
+                        vmedField.value = vpriEffective.toFixed(0);
+                    }
+                    document.getElementById('res-vpri-estimado').innerText = vpriEffective.toFixed(0);
+                } else {
+                    // Calculamos el Secundario a partir del Primario Medido
+                    vpriEffective = vmed > 0 ? vmed : vpri;
+                    if (document.activeElement !== vsecMedField) {
+                        let calculatedSec = vpriEffective * (vsec / tapVoltageActual);
+                        vsecMedField.value = calculatedSec.toFixed(1);
+                    }
+                    document.getElementById('res-vpri-estimado').innerText = vpriEffective.toFixed(0);
+                }
+
+                // --- CONSTRUIR LA TABLA ---
                 let tbody = document.getElementById('tx-taps-table');
                 tbody.innerHTML = '';
-
                 let maxSteps = Math.floor(tapCount / 2);
                 let currentPos = 1;
 
-                // Generar tabla
                 for (let i = maxSteps; i >= -maxSteps; i--) {
                     let varPercent = i * 2.5;
                     
-                    // 1. Voltaje nominal del Tap en el devanado primario
+                    // Voltaje de Placa del Tap Primario
                     let tapVoltage = vpri * (1 + (varPercent / 100));
                     
-                    // 2. Voltajes secundarios reales (relación de transformación aplicada al medido)
-                    let realSecVoltageLL = (vmed * vsec) / tapVoltage;
+                    // Voltajes de salida REALES (usando el V. Primario Efectivo que determinamos arriba)
+                    let realSecVoltageLL = (vpriEffective * vsec) / tapVoltage;
                     let realSecVoltageLN = (fases === 3) ? (realSecVoltageLL / 1.732) : (realSecVoltageLL / 2);
                     
-                    let bgClass = (i === 0) ? 'bg-emerald-50 font-bold' : 'bg-white';
+                    // Resaltar visualmente el Tap donde está posicionado el usuario
+                    let bgClass = (i === tapActualIndex) ? 'bg-[#f0f9ff] font-bold border-l-4 border-[#1e3a8a] shadow-sm' : ((i === 0) ? 'bg-slate-50' : 'bg-white');
                     let varText = (i > 0) ? `+${varPercent.toFixed(1)}%` : `${varPercent.toFixed(1)}%`;
                     
                     tbody.innerHTML += `
@@ -1095,19 +1126,6 @@
                         </tr>
                     `;
                     currentPos++;
-                }
-
-                // Cálculo Inverso (Conozco V. Secundario -> Quiero Entrada Real)
-                let vsecMed = pSafe(document.getElementById('tx-vsec-medido').value) || 0;
-                let tapActualIndex = parseInt(document.getElementById('tx-tap-actual').value) || 0;
-                if (vsecMed > 0) {
-                    let varPercentActual = tapActualIndex * 2.5;
-                    let tapVoltageActual = vpri * (1 + (varPercentActual / 100));
-                    // Relación exacta: Vpri_real / Vsec_medido = Vpri_tap / Vsec_nom
-                    let vpriEstimado = vsecMed * (tapVoltageActual / vsec);
-                    document.getElementById('res-vpri-estimado').innerText = vpriEstimado.toFixed(0);
-                } else {
-                    document.getElementById('res-vpri-estimado').innerText = "0";
                 }
 
             } else {
