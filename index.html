@@ -16,13 +16,12 @@
         .label-premium { display: block; font-size: 0.7rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.3rem; }
         .section-title { font-weight: 800; color: #1e3a8a; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; margin-bottom: 1rem; }
         
-        /* MENÚ DESPLEGABLE MEJORADO PARA TÁCTIL */
         .nav-category { position: relative; display: inline-block; flex: 1 1 45%; min-width: 0; }
         .nav-btn { 
             width: 100%; padding: 0.75rem 0.5rem; border-radius: 9999px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.025em;
             transition: all 0.3s ease; background-color: transparent; color: #475569; border: 1px solid transparent;
             display: flex; align-items: center; justify-content: center; gap: 0.3rem; cursor: pointer;
-            min-height: 48px; /* Área táctil cómoda */
+            min-height: 48px;
         }
         .nav-btn:hover { background-color: #f1f5f9; color: #1d4ed8; }
         .nav-btn.active-cat { background-color: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; box-shadow: 0 2px 4px rgba(37,99,235,0.1); }
@@ -39,7 +38,7 @@
         .dropdown-item { 
             display: block; padding: 0.9rem 1.2rem; font-size: 0.85rem; font-weight: 700; color: #475569; 
             transition: all 0.2s; border-left: 3px solid transparent;
-            min-height: 48px; /* Área táctil */
+            min-height: 48px;
         }
         .dropdown-item:hover { background-color: #f8fafc; color: #1d4ed8; padding-left: 1.5rem; border-left-color: #3b82f6; }
         .dropdown-item.active-item { background-color: #eff6ff; color: #1d4ed8; border-left-color: #1d4ed8; }
@@ -1237,7 +1236,7 @@
         }
 
         // ============================================================
-        //  EXPORTACIÓN (VERSIÓN CORREGIDA Y ROBUSTA)
+        //  EXPORTACIÓN (VERSIÓN CORREGIDA PARA MÓVILES)
         // ============================================================
         function exportarReporteUniversal(event) {
             const btn = event.currentTarget; 
@@ -1245,136 +1244,139 @@
             btn.innerHTML = '<span class="animate-pulse">GENERANDO...</span>'; 
             btn.style.opacity = '0.7'; 
             btn.disabled = true;
-            
-            try {
-                const activeTab = document.querySelector('.tab-content.activo');
-                const titleEl = activeTab.querySelector('h2.text-xl');
-                const tabTitle = titleEl ? titleEl.innerText : "Reporte Técnico";
-                
-                // Forzar subida arriba para evitar cortes en canvas
-                window.scrollTo(0, 0);
-                
-                const printContainer = document.createElement('div'); 
-                printContainer.id = 'solutronic-print-container';
-                // Contenedor temporal escondido y fuera del scroll visual pero capturable
-                printContainer.className = 'absolute top-0 left-0 w-[1000px] bg-[#ffffff] text-slate-800 p-12 box-border z-[-999] opacity-0 pointer-events-none font-["Plus_Jakarta_Sans"]';
-                
-                const dateStr = new Date().toLocaleString('es-VE', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-                let activeH2 = titleEl ? titleEl.innerText : tabTitle;
-                let pDescEl = activeTab.querySelector('p.text-xs');
-                let activeP = pDescEl ? pDescEl.innerText : '';
+            setTimeout(() => {
+                try {
+                    const activeTab = document.querySelector('.tab-content.activo');
+                    if (!activeTab) throw new Error("No hay pestaña activa");
 
-                printContainer.innerHTML = `
-                    <div class="bg-white w-full">
-                        <div class="flex justify-between items-start mb-6">
-                            <div class="flex flex-col">
-                                <h1 class="text-[42px] font-black italic text-[#1e3a8a] tracking-wider leading-tight mb-2">SOLUTRONIC</h1>
-                                <p class="text-[12px] font-bold text-[#64748b] tracking-[0.1em] uppercase">Reporte Técnico de Ingeniería</p>
-                            </div>
-                            <div class="flex flex-col items-end gap-3">
-                                <div class="bg-[#f0f9ff] text-[#1e3a8a] font-black uppercase tracking-widest px-8 py-3 rounded-xl border border-blue-100 text-xl shadow-sm">${tabTitle}</div>
-                                <p class="text-[13px] font-bold text-[#64748b]">${dateStr}</p>
-                            </div>
-                        </div>
-                        <div class="w-full h-1.5 bg-[#1e3a8a] mb-8 mt-2"></div>
-                        <h2 class="text-2xl font-black text-[#1e293b] mb-2 pt-2">${activeH2}</h2>
-                        <p class="text-xs font-bold text-[#64748b] uppercase tracking-widest mb-6">${activeP}</p>
-                        <div id="print-body" class="w-full"></div>
-                        <div class="mt-12 pt-8 border-t-2 border-slate-100 text-center">
-                            <p class="text-[12px] font-bold text-[#94a3b8] uppercase tracking-[0.15em]">Generado automáticamente por Solutronic Suite</p>
-                            <p class="text-[10px] text-[#cbd5e1] mt-2">Cálculos respaldados por normativa NEC (NFPA 70) / IEC 60364</p>
-                        </div>
-                    </div>`;
+                    const titleEl = activeTab.querySelector('h2.text-xl');
+                    const tabTitle = titleEl ? titleEl.innerText : "Reporte Técnico";
+                    const pDescEl = activeTab.querySelector('p.text-xs');
+                    const activeP = pDescEl ? pDescEl.innerText : '';
 
-                const contentClone = activeTab.cloneNode(true); 
-                contentClone.classList.remove('activo');
-                contentClone.style.display = 'block'; 
-                
-                let h2 = contentClone.querySelector('h2.text-xl'); 
-                if(h2 && h2.parentElement) h2.parentElement.remove();
-                
-                let pDesc = contentClone.querySelector('p.text-xs.font-bold.text-slate-400.mt-1'); 
-                if(pDesc) pDesc.remove();
-
-                contentClone.querySelectorAll('.glass-card').forEach(c => { 
-                    c.classList.remove('shadow-md', 'shadow-sm', 'bg-slate-900', 'text-white', 'border-none'); 
-                    c.classList.add('bg-white', 'border-2', 'border-slate-100', 'rounded-2xl', 'p-6', 'shadow-none'); 
-                    if(c.classList.contains('bg-gradient-to-br')) { 
-                        c.classList.remove('bg-gradient-to-br', 'from-white', 'to-fuchsia-50/50', 'to-red-50'); 
-                        c.classList.add('bg-slate-50'); 
-                    }
-                });
-
-                // Corrección Crítica: Lectura segura de Inputs Originales a Clones
-                const originalInputs = Array.from(activeTab.querySelectorAll('input, select, textarea'));
-                const clonedInputs = Array.from(contentClone.querySelectorAll('input, select, textarea'));
-                
-                clonedInputs.forEach((clone, i) => { 
-                    const orig = originalInputs[i]; 
-                    if (!orig) return; // Validación extra
+                    // Crear contenedor usando un enfoque amigable para html2canvas en móviles
+                    const printContainer = document.createElement('div');
+                    printContainer.id = 'solutronic-print-container';
+                    printContainer.style.cssText = 'position: absolute; top: -9999px; left: -9999px; width: 1000px; background-color: #ffffff; padding: 48px; box-sizing: border-box; font-family: "Plus Jakarta Sans", sans-serif;';
                     
-                    if (orig.type === 'checkbox' || orig.type === 'radio') { 
-                        if(clone.parentElement) clone.parentElement.style.display = 'none'; 
-                    } else { 
-                        let val = orig.tagName === 'SELECT' ? (orig.options[orig.selectedIndex]?.text || '-') : (orig.value || '-'); 
-                        let span = document.createElement('div'); 
-                        span.className = 'w-full py-2 px-4 bg-[#f8fafc] border border-slate-200 rounded-xl text-base font-black text-[#1e3a8a] text-center shadow-sm block mt-1'; 
-                        span.innerText = val; 
-                        if(clone.parentNode) clone.parentNode.replaceChild(span, clone); 
-                    }
-                });
+                    const dateStr = new Date().toLocaleString('es-VE', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-                contentClone.querySelectorAll('.label-premium').forEach(l => l.className = 'block text-[11px] font-black text-[#1e3a8a] uppercase tracking-wider mb-1 leading-normal');
-                contentClone.querySelectorAll('.section-title').forEach(t => t.className = 'text-sm font-black text-[#1e3a8a] uppercase tracking-widest border-b-2 border-blue-100 pb-2 mb-4 inline-block w-full');
-                
-                ['button', '.no-print', '#sc-placeholder', '#mot-placeholder', '#afq-placeholder', '#placeholderBar'].forEach(s => {
-                    contentClone.querySelectorAll(s).forEach(e => e && e.remove());
-                });
+                    // Cabecera HTML estricto
+                    const headerHtml = `
+                        <div style="margin-bottom: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                                <div>
+                                    <h1 style="font-size: 42px; font-weight: 900; font-style: italic; color: #1e3a8a; margin: 0; line-height: 1;">SOLUTRONIC</h1>
+                                    <p style="font-size: 12px; font-weight: 700; color: #64748b; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px;">Reporte Técnico de Ingeniería</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="background-color: #f0f9ff; color: #1e3a8a; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; padding: 12px 32px; border-radius: 12px; border: 1px solid #dbeafe; font-size: 20px;">${tabTitle}</div>
+                                    <p style="font-size: 13px; font-weight: 700; color: #64748b; margin-top: 12px;">${dateStr}</p>
+                                </div>
+                            </div>
+                            <div style="width: 100%; height: 6px; background-color: #1e3a8a; margin-bottom: 32px;"></div>
+                            <h2 style="font-size: 24px; font-weight: 900; color: #1e293b; margin-bottom: 8px;">${titleEl ? titleEl.innerText : tabTitle}</h2>
+                            <p style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 24px;">${activeP}</p>
+                        </div>
+                    `;
 
-                contentClone.querySelectorAll('.bg-fuchsia-600, .bg-indigo-600, .bg-[#1e3a8a], .bg-red-600, .bg-emerald-50').forEach(box => { 
-                    box.classList.remove('bg-fuchsia-600', 'bg-indigo-600', 'bg-[#1e3a8a]', 'bg-red-600', 'text-white'); 
-                    box.classList.add('bg-slate-50', 'border-2', 'border-slate-200'); 
-                    box.querySelectorAll('p, h3, span, div').forEach(el => { 
-                        el.classList.remove('text-fuchsia-200', 'text-fuchsia-100', 'text-indigo-200', 'text-indigo-100', 'text-blue-200', 'text-blue-300', 'text-red-200', 'text-red-100', 'text-white'); 
-                        el.classList.add('text-slate-800'); 
+                    // Clonar contenido
+                    const contentClone = activeTab.cloneNode(true);
+                    contentClone.style.display = 'block';
+
+                    // Limpiar encabezados originales en el clon
+                    const h2 = contentClone.querySelector('h2.text-xl');
+                    if (h2 && h2.parentElement) h2.parentElement.remove();
+
+                    // Reemplazar inputs asegurando iteración con Array.from
+                    const originalInputs = Array.from(activeTab.querySelectorAll('input, select'));
+                    const clonedInputs = Array.from(contentClone.querySelectorAll('input, select'));
+                    
+                    clonedInputs.forEach((clone, i) => {
+                        const orig = originalInputs[i];
+                        if (!orig) return;
+                        if (orig.type === 'checkbox' || orig.type === 'radio') {
+                            if (clone.parentElement) clone.parentElement.style.display = 'none';
+                        } else {
+                            let val = orig.tagName === 'SELECT' ? (orig.options[orig.selectedIndex]?.text || '-') : (orig.value || '-');
+                            let span = document.createElement('div');
+                            span.className = 'w-full py-2 px-4 bg-[#f8fafc] border border-slate-200 rounded-xl text-base font-black text-[#1e3a8a] text-center shadow-sm block mt-1';
+                            span.innerText = val;
+                            if (clone.parentNode) clone.parentNode.replaceChild(span, clone);
+                        }
                     });
-                });
 
-                printContainer.querySelector('#print-body').appendChild(contentClone); 
-                document.body.appendChild(printContainer);
-                
-                // Retraso para que el navegador construya el DOM correctamente antes de la foto
-                setTimeout(() => {
-                    html2canvas(printContainer, { 
-                        scale: 2, 
-                        useCORS: true, 
-                        backgroundColor: '#ffffff', 
-                        windowWidth: 1000, 
-                        logging: false 
-                    }).then(canvas => {
-                        const link = document.createElement('a'); 
-                        link.download = `Reporte_Solutronic_${tabTitle.replace(/\s+/g, '_')}.jpg`; 
-                        link.href = canvas.toDataURL('image/jpeg', 0.95); 
-                        link.click();
-                    }).catch(err => {
-                        console.error("Error capturando lienzo:", err);
-                        alert("Ocurrió un error al generar la imagen.");
-                    }).finally(() => { 
-                        btn.innerHTML = originalHTML; 
-                        btn.style.opacity = '1'; 
-                        btn.disabled = false; 
-                        document.body.removeChild(printContainer); 
+                    // Limpiar botones e instrucciones
+                    ['button', '.no-print', '#sc-placeholder', '#mot-placeholder', '#afq-placeholder', '#placeholderBar'].forEach(s => {
+                        contentClone.querySelectorAll(s).forEach(e => e && e.remove());
                     });
-                }, 150);
 
-            } catch (error) {
-                console.error("Error crítico de exportación:", error);
-                btn.innerHTML = originalHTML; 
-                btn.style.opacity = '1'; 
-                btn.disabled = false;
-                alert("Verifique la consola, ha ocurrido un error al procesar el reporte.");
-            }
+                    // Forzar fondos blancos y bordes grises (eliminar tarjetas de cristal y fondos pesados)
+                    contentClone.querySelectorAll('.glass-card').forEach(c => {
+                        c.classList.remove('shadow-md', 'shadow-sm');
+                        c.classList.add('bg-white', 'border-2', 'border-slate-100', 'p-6');
+                        c.style.backgroundColor = '#ffffff';
+                    });
+
+                    contentClone.querySelectorAll('.bg-fuchsia-600, .bg-indigo-600, .bg-[#1e3a8a], .bg-red-600, .bg-emerald-50').forEach(box => {
+                        box.className = 'bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 text-slate-800';
+                        box.querySelectorAll('*').forEach(el => {
+                            el.classList.remove('text-fuchsia-200', 'text-fuchsia-100', 'text-indigo-200', 'text-indigo-100', 'text-blue-200', 'text-blue-300', 'text-red-200', 'text-red-100', 'text-white');
+                            el.classList.add('text-slate-800');
+                        });
+                    });
+
+                    // Footer
+                    const footerHtml = `
+                        <div style="margin-top: 48px; padding-top: 32px; border-top: 2px solid #f1f5f9; text-align: center;">
+                            <p style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.15em;">Generado automáticamente por Solutronic Suite</p>
+                            <p style="font-size: 10px; color: #cbd5e1; margin-top: 8px;">Cálculos respaldados por normativa NEC (NFPA 70) / IEC 60364</p>
+                        </div>
+                    `;
+
+                    printContainer.innerHTML = headerHtml + '<div id="print-body"></div>' + footerHtml;
+                    printContainer.querySelector('#print-body').appendChild(contentClone);
+
+                    document.body.appendChild(printContainer);
+
+                    // Desplazar arriba antes del cálculo ayuda a evitar recortes en la imagen
+                    window.scrollTo(0, 0);
+
+                    // Esperar 300ms permite al navegador móvil aplicar todos los estilos al DOM escondido
+                    setTimeout(() => {
+                        html2canvas(printContainer, {
+                            scale: 2,
+                            useCORS: true,
+                            allowTaint: true,
+                            backgroundColor: '#ffffff',
+                            width: 1000,
+                            windowWidth: 1000,
+                            logging: false
+                        }).then(canvas => {
+                            const link = document.createElement('a');
+                            link.download = `Reporte_Solutronic_${tabTitle.replace(/\s+/g, '_')}.jpg`;
+                            link.href = canvas.toDataURL('image/jpeg', 0.95);
+                            link.click();
+                        }).catch(err => {
+                            console.error("Error capturando lienzo:", err);
+                            alert("Error al generar la imagen: " + err.message);
+                        }).finally(() => {
+                            document.body.removeChild(printContainer);
+                            btn.innerHTML = originalHTML;
+                            btn.style.opacity = '1';
+                            btn.disabled = false;
+                        });
+                    }, 300); 
+
+                } catch (error) {
+                    console.error("Error crítico de exportación:", error);
+                    alert("Error de procesamiento: " + error.message);
+                    btn.innerHTML = originalHTML;
+                    btn.style.opacity = '1';
+                    btn.disabled = false;
+                }
+            }, 50); 
         }
     </script>
 </body>
