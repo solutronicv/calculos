@@ -1260,43 +1260,134 @@
             calcCaida(); calcTuberia(); calculateTheory(); calcFiltros(); calcCortoCircuito(); calcMotor(); calcTray(); calcTransformador(); calcBarras();
         }
 
-        // ============================================================
+// ============================================================
         //  EXPORTACIÓN
         // ============================================================
         function exportarReporteUniversal(event) {
-            const btn = event.currentTarget; const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<span class="animate-pulse">GENERANDO...</span>'; btn.style.opacity = '0.7'; btn.disabled = true;
+            const btn = event.currentTarget; 
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<span class="animate-pulse">GENERANDO...</span>'; 
+            btn.style.opacity = '0.7'; 
+            btn.disabled = true;
             
-            const activeTab = document.querySelector('.tab-content.activo');
-            const tabTitle = activeTab.querySelector('h2.text-xl') ? activeTab.querySelector('h2.text-xl').innerText : "Reporte";
-            
-            const printContainer = document.createElement('div'); printContainer.id = 'solutronic-print-container';
-            printContainer.className = 'fixed top-0 left-[-9999px] w-[1000px] bg-[#ffffff] text-slate-800 p-12 box-border z-[-50] font-["Plus_Jakarta_Sans"]';
-            const dateStr = new Date().toLocaleString('es-VE', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+            try {
+                const activeTab = document.querySelector('.tab-content.activo');
+                const titleEl = activeTab.querySelector('h2.text-xl');
+                const tabTitle = titleEl ? titleEl.innerText : "Reporte";
+                
+                const printContainer = document.createElement('div'); 
+                printContainer.id = 'solutronic-print-container';
+                // Mejor posicionamiento para asegurar que html2canvas lo capture
+                printContainer.className = 'absolute top-0 left-0 w-[1000px] bg-[#ffffff] text-slate-800 p-12 box-border z-[-999] opacity-0 pointer-events-none font-["Plus_Jakarta_Sans"]';
+                const dateStr = new Date().toLocaleString('es-VE', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-            let activeH2 = activeTab.querySelector('h2.text-xl') ? activeTab.querySelector('h2.text-xl').innerText : tabTitle;
-            let activeP = activeTab.querySelector('p.text-xs') ? activeTab.querySelector('p.text-xs').innerText : '';
+                let activeH2 = titleEl ? titleEl.innerText : tabTitle;
+                let pDescEl = activeTab.querySelector('p.text-xs');
+                let activeP = pDescEl ? pDescEl.innerText : '';
 
-            printContainer.innerHTML = `<div class="bg-white w-full"><div class="flex justify-between items-start mb-6"><div class="flex flex-col"><h1 class="text-[42px] font-black italic text-[#1e3a8a] tracking-wider leading-tight mb-2">SOLUTRONIC</h1><p class="text-[12px] font-bold text-[#64748b] tracking-[0.1em] uppercase">Reporte Técnico de Ingeniería</p></div><div class="flex flex-col items-end gap-3"><div class="bg-[#f0f9ff] text-[#1e3a8a] font-black uppercase tracking-widest px-8 py-3 rounded-xl border border-blue-100 text-xl shadow-sm">${tabTitle}</div><p class="text-[13px] font-bold text-[#64748b]">${dateStr}</p></div></div><div class="w-full h-1.5 bg-[#1e3a8a] mb-8 mt-2"></div><h2 class="text-2xl font-black text-[#1e293b] mb-2 pt-2">${activeH2}</h2><p class="text-xs font-bold text-[#64748b] uppercase tracking-widest mb-6">${activeP}</p><div id="print-body" class="w-full"></div><div class="mt-12 pt-8 border-t-2 border-slate-100 text-center"><p class="text-[12px] font-bold text-[#94a3b8] uppercase tracking-[0.15em]">Generado automáticamente por Solutronic Suite</p><p class="text-[10px] text-[#cbd5e1] mt-2">Cálculos respaldados por normativa NEC (NFPA 70) / IEC 60364</p></div></div>`;
+                printContainer.innerHTML = `
+                    <div class="bg-white w-full">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex flex-col">
+                                <h1 class="text-[42px] font-black italic text-[#1e3a8a] tracking-wider leading-tight mb-2">SOLUTRONIC</h1>
+                                <p class="text-[12px] font-bold text-[#64748b] tracking-[0.1em] uppercase">Reporte Técnico de Ingeniería</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-3">
+                                <div class="bg-[#f0f9ff] text-[#1e3a8a] font-black uppercase tracking-widest px-8 py-3 rounded-xl border border-blue-100 text-xl shadow-sm">${tabTitle}</div>
+                                <p class="text-[13px] font-bold text-[#64748b]">${dateStr}</p>
+                            </div>
+                        </div>
+                        <div class="w-full h-1.5 bg-[#1e3a8a] mb-8 mt-2"></div>
+                        <h2 class="text-2xl font-black text-[#1e293b] mb-2 pt-2">${activeH2}</h2>
+                        <p class="text-xs font-bold text-[#64748b] uppercase tracking-widest mb-6">${activeP}</p>
+                        <div id="print-body" class="w-full"></div>
+                        <div class="mt-12 pt-8 border-t-2 border-slate-100 text-center">
+                            <p class="text-[12px] font-bold text-[#94a3b8] uppercase tracking-[0.15em]">Generado automáticamente por Solutronic Suite</p>
+                            <p class="text-[10px] text-[#cbd5e1] mt-2">Cálculos respaldados por normativa NEC (NFPA 70) / IEC 60364</p>
+                        </div>
+                    </div>`;
 
-            const contentClone = activeTab.cloneNode(true); contentClone.classList.remove('activo');
-            let h2 = contentClone.querySelector('h2.text-xl'); if(h2) h2.parentElement.remove();
-            let pDesc = contentClone.querySelector('p.text-xs.font-bold.text-slate-400.mt-1'); if(pDesc) pDesc.remove();
+                const contentClone = activeTab.cloneNode(true); 
+                contentClone.classList.remove('activo');
+                contentClone.style.display = 'block'; // Forzamos visibilidad para el render
+                
+                let h2 = contentClone.querySelector('h2.text-xl'); if(h2) h2.parentElement.remove();
+                let pDesc = contentClone.querySelector('p.text-xs.font-bold.text-slate-400.mt-1'); if(pDesc) pDesc.remove();
 
-            contentClone.querySelectorAll('.glass-card').forEach(c => { c.classList.remove('shadow-md', 'shadow-sm', 'bg-slate-900', 'text-white', 'border-none'); c.classList.add('bg-white', 'border-2', 'border-slate-100', 'rounded-2xl', 'p-6', 'shadow-none'); if(c.classList.contains('bg-gradient-to-br')) { c.classList.remove('bg-gradient-to-br', 'from-white', 'to-fuchsia-50/50', 'to-red-50'); c.classList.add('bg-slate-50'); }});
-            contentClone.querySelectorAll('input, select').forEach((orig, i) => { let clone = contentClone.querySelectorAll('input, select')[i]; if (orig.type === 'checkbox') { if(clone.parentElement) clone.parentElement.style.display = 'none'; } else { let v = orig.tagName === 'SELECT' ? (orig.options[orig.selectedIndex]?.text || '-') : (orig.value || '-'); let span = document.createElement('div'); span.className = 'w-full py-2 px-4 bg-[#f8fafc] border border-slate-200 rounded-xl text-base font-black text-[#1e3a8a] text-center shadow-sm block mt-1'; span.innerText = v; clone.parentNode.replaceChild(span, clone); }});
-            contentClone.querySelectorAll('.label-premium').forEach(l => l.className = 'block text-[11px] font-black text-[#1e3a8a] uppercase tracking-wider mb-1 leading-normal');
-            contentClone.querySelectorAll('.section-title').forEach(t => t.className = 'text-sm font-black text-[#1e3a8a] uppercase tracking-widest border-b-2 border-blue-100 pb-2 mb-4 inline-block w-full');
-            ['button', '.no-print', '#sc-placeholder', '#mot-placeholder', '#afq-placeholder', '#placeholderBar'].forEach(s => contentClone.querySelectorAll(s).forEach(e => e && e.remove()));
+                contentClone.querySelectorAll('.glass-card').forEach(c => { 
+                    c.classList.remove('shadow-md', 'shadow-sm', 'bg-slate-900', 'text-white', 'border-none'); 
+                    c.classList.add('bg-white', 'border-2', 'border-slate-100', 'rounded-2xl', 'p-6', 'shadow-none'); 
+                    if(c.classList.contains('bg-gradient-to-br')) { 
+                        c.classList.remove('bg-gradient-to-br', 'from-white', 'to-fuchsia-50/50', 'to-red-50'); 
+                        c.classList.add('bg-slate-50'); 
+                    }
+                });
 
-            contentClone.querySelectorAll('.bg-fuchsia-600, .bg-indigo-600, .bg-[#1e3a8a], .bg-red-600, .bg-emerald-50').forEach(box => { box.classList.remove('bg-fuchsia-600', 'bg-indigo-600', 'bg-[#1e3a8a]', 'bg-red-600', 'text-white'); box.classList.add('bg-slate-50', 'border-2', 'border-slate-200'); box.querySelectorAll('p, h3, span, div').forEach(el => { el.classList.remove('text-fuchsia-200', 'text-fuchsia-100', 'text-indigo-200', 'text-indigo-100', 'text-blue-200', 'text-blue-300', 'text-red-200', 'text-red-100', 'text-white'); el.classList.add('text-slate-800'); });});
+                // Corrección Clave: Leer valores desde los inputs ORIGINALES
+                const originalInputs = activeTab.querySelectorAll('input, select');
+                contentClone.querySelectorAll('input, select').forEach((clone, i) => { 
+                    const orig = originalInputs[i]; 
+                    if (orig.type === 'checkbox') { 
+                        if(clone.parentElement) clone.parentElement.style.display = 'none'; 
+                    } else { 
+                        let v = orig.tagName === 'SELECT' ? (orig.options[orig.selectedIndex]?.text || '-') : (orig.value || '-'); 
+                        let span = document.createElement('div'); 
+                        span.className = 'w-full py-2 px-4 bg-[#f8fafc] border border-slate-200 rounded-xl text-base font-black text-[#1e3a8a] text-center shadow-sm block mt-1'; 
+                        span.innerText = v; 
+                        clone.parentNode.replaceChild(span, clone); 
+                    }
+                });
 
-            printContainer.querySelector('#print-body').appendChild(contentClone); document.body.appendChild(printContainer);
-            const originalScroll = window.scrollY; window.scrollTo(0, 0);
+                contentClone.querySelectorAll('.label-premium').forEach(l => l.className = 'block text-[11px] font-black text-[#1e3a8a] uppercase tracking-wider mb-1 leading-normal');
+                contentClone.querySelectorAll('.section-title').forEach(t => t.className = 'text-sm font-black text-[#1e3a8a] uppercase tracking-widest border-b-2 border-blue-100 pb-2 mb-4 inline-block w-full');
+                
+                ['button', '.no-print', '#sc-placeholder', '#mot-placeholder', '#afq-placeholder', '#placeholderBar'].forEach(s => {
+                    contentClone.querySelectorAll(s).forEach(e => e && e.remove());
+                });
 
-            html2canvas(printContainer, { scale: 2, useCORS: true, backgroundColor: '#ffffff', windowWidth: 1000, logging: false }).then(canvas => {
-                const link = document.createElement('a'); link.download = `Reporte_Solutronic_${tabTitle.replace(/\s+/g, '_')}.jpg`; link.href = canvas.toDataURL('image/jpeg', 0.95); link.click();
-            }).finally(() => { window.scrollTo(0, originalScroll); btn.innerHTML = originalHTML; btn.style.opacity = '1'; btn.disabled = false; document.body.removeChild(printContainer); });
+                contentClone.querySelectorAll('.bg-fuchsia-600, .bg-indigo-600, .bg-[#1e3a8a], .bg-red-600, .bg-emerald-50').forEach(box => { 
+                    box.classList.remove('bg-fuchsia-600', 'bg-indigo-600', 'bg-[#1e3a8a]', 'bg-red-600', 'text-white'); 
+                    box.classList.add('bg-slate-50', 'border-2', 'border-slate-200'); 
+                    box.querySelectorAll('p, h3, span, div').forEach(el => { 
+                        el.classList.remove('text-fuchsia-200', 'text-fuchsia-100', 'text-indigo-200', 'text-indigo-100', 'text-blue-200', 'text-blue-300', 'text-red-200', 'text-red-100', 'text-white'); 
+                        el.classList.add('text-slate-800'); 
+                    });
+                });
+
+                printContainer.querySelector('#print-body').appendChild(contentClone); 
+                document.body.appendChild(printContainer);
+                
+                // Pequeño retardo para asegurar que el DOM cargó el nodo antes de la foto
+                setTimeout(() => {
+                    html2canvas(printContainer, { 
+                        scale: 2, 
+                        useCORS: true, 
+                        backgroundColor: '#ffffff', 
+                        windowWidth: 1000, 
+                        logging: false 
+                    }).then(canvas => {
+                        const link = document.createElement('a'); 
+                        link.download = `Reporte_Solutronic_${tabTitle.replace(/\s+/g, '_')}.jpg`; 
+                        link.href = canvas.toDataURL('image/jpeg', 0.95); 
+                        link.click();
+                    }).catch(err => {
+                        console.error("Error capturando lienzo:", err);
+                        alert("Ocurrió un error al generar la imagen.");
+                    }).finally(() => { 
+                        btn.innerHTML = originalHTML; 
+                        btn.style.opacity = '1'; 
+                        btn.disabled = false; 
+                        document.body.removeChild(printContainer); 
+                    });
+                }, 100);
+
+            } catch (error) {
+                console.error("Error crítico de exportación:", error);
+                btn.innerHTML = originalHTML; 
+                btn.style.opacity = '1'; 
+                btn.disabled = false;
+                alert("Verifique la consola, ha ocurrido un error al procesar el reporte.");
+            }
         }
     </script>
 </body>
