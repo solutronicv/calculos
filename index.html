@@ -645,6 +645,7 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="glass-card p-6 flex flex-col justify-center">
                     <div id="mot-results" class="hidden space-y-4">
                         <div class="grid grid-cols-2 gap-4">
@@ -657,20 +658,37 @@
                                 <p class="text-3xl font-black text-amber-600 mt-2"><span id="res-mot-lra">0</span>A</p>
                             </div>
                         </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                            <div><p class="text-[10px] uppercase font-bold text-slate-500">Breaker Sugerido</p><p class="text-xs text-slate-400">Curva Inversa (250% FLA)</p></div>
-                            <p class="text-xl font-black text-slate-800"><span id="res-mot-brk">0</span>A</p>
+
+                        <h3 class="text-[11px] font-black text-[#1e3a8a] uppercase tracking-widest border-b-2 border-blue-100 pb-2 mt-4">Ajustes de Unidad de Disparo</h3>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                                <p class="text-[10px] uppercase font-bold text-slate-500">Disparo Térmico</p>
+                                <p class="text-xs text-slate-400 mb-1">Protege cableado (115-125%)</p>
+                                <p class="text-xl font-black text-emerald-600" id="res-mot-termico">-</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                                <p class="text-[10px] uppercase font-bold text-slate-500">Disparo Magnético</p>
+                                <p class="text-xs text-slate-400 mb-1">Inrush / Corto (~8x)</p>
+                                <p class="text-xl font-black text-red-600"><span id="res-mot-mag">0</span>A</p>
+                            </div>
                         </div>
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-                            <div><p class="text-[10px] uppercase font-bold text-slate-500">Cable Mín. (75°C)</p><p class="text-xs text-slate-400">125% FLA Continua</p></div>
-                            <p class="text-sm font-black text-slate-800 text-right" id="res-mot-cbl">-</p>
+
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between mt-2">
+                            <div>
+                                <p class="text-[10px] uppercase font-bold text-slate-500">Calibre Mínimo (75°C)</p>
+                                <p class="text-xs text-slate-400">125% FLA Continua</p>
+                            </div>
+                            <p class="text-lg font-black text-[#1e3a8a] text-right" id="res-mot-cbl">-</p>
                         </div>
                     </div>
-                    <div id="mot-placeholder" class="text-center text-slate-400 py-12"><p class="font-bold text-sm tracking-wide uppercase">Ingrese los datos de placa</p></div>
+                    
+                    <div id="mot-placeholder" class="text-center text-slate-400 py-12">
+                        <p class="font-bold text-sm tracking-wide uppercase">Ingrese los datos de placa</p>
+                    </div>
                 </div>
             </div>
         </div>
-
         <!-- ========== TAB UPS ========== -->
         <div id="tab-respaldo" class="tab-content" oninput="calcUPS()">
             <div class="mb-4"><h2 class="text-xl font-black text-slate-800">Sistemas de Respaldo UPS</h2><p class="text-xs font-bold text-slate-400 mt-1">Dimensionamiento Básico</p></div>
@@ -1069,7 +1087,45 @@
         // ============================================================
         //  9. MOTORES
         // ============================================================
-        function calcMotor() { let hp = pSafe(document.getElementById('mot-hp').value)||0, v = pSafe(document.getElementById('mot-v').value)||0, eff = pSafe(document.getElementById('mot-eff').value)||90, fp = pSafe(document.getElementById('mot-fp').value)||0.85, kva_hp = pSafe(document.getElementById('mot-code').value)||5.6; if(hp > 0 && v > 0) { let fla = (hp * 746) / (1.732 * v * (eff/100) * fp); document.getElementById('res-mot-fla').innerText = fla.toFixed(1); document.getElementById('res-mot-lra').innerText = ((kva_hp * hp * 1000) / (1.732 * v)).toFixed(1); document.getElementById('res-mot-brk').innerText = getCommercialBreaker(fla * 2.5); document.getElementById('res-mot-cbl').innerText = getBestGlobalAWGWithAmp(fla * 1.25, 'a75').label; document.getElementById('mot-placeholder').classList.add('hidden'); document.getElementById('mot-results').classList.remove('hidden'); } else { document.getElementById('mot-placeholder').classList.remove('hidden'); document.getElementById('mot-results').classList.add('hidden'); } }
+        // ============================================================
+        //  9. MOTORES
+        // ============================================================
+        function calcMotor() { 
+            let hp = pSafe(document.getElementById('mot-hp').value) || 0;
+            let v = pSafe(document.getElementById('mot-v').value) || 0;
+            let eff = pSafe(document.getElementById('mot-eff').value) || 90;
+            let fp = pSafe(document.getElementById('mot-fp').value) || 0.85;
+            let kva_hp = pSafe(document.getElementById('mot-code').value) || 5.6; 
+            
+            if (hp > 0 && v > 0) { 
+                // 1. Corrientes Base
+                let fla = (hp * 746) / (1.732 * v * (eff/100) * fp); 
+                let lra = (kva_hp * hp * 1000) / (1.732 * v);
+                
+                document.getElementById('res-mot-fla').innerText = fla.toFixed(1); 
+                document.getElementById('res-mot-lra').innerText = lra.toFixed(1); 
+                
+                // 2. Ajustes de la Unidad de Disparo
+                let termicoMin = fla * 1.15;
+                let termicoMax = fla * 1.25;
+                document.getElementById('res-mot-termico').innerText = `${termicoMin.toFixed(1)}A - ${termicoMax.toFixed(1)}A`;
+                
+                let magTrip = fla * 8; // Multiplicador estándar NEC para soportar inrush
+                document.getElementById('res-mot-mag').innerText = magTrip.toFixed(0);
+
+                // 3. Conductor Mínimo
+                let ampCable = fla * 1.25;
+                document.getElementById('res-mot-cbl').innerText = getBestGlobalAWGWithAmp(ampCable, 'a75').label; 
+                
+                // Mostrar resultados
+                document.getElementById('mot-placeholder').classList.add('hidden'); 
+                document.getElementById('mot-results').classList.remove('hidden'); 
+            } else { 
+                // Ocultar resultados si faltan datos
+                document.getElementById('mot-placeholder').classList.remove('hidden'); 
+                document.getElementById('mot-results').classList.add('hidden'); 
+            } 
+        }
 
         // ============================================================
         // 10. UPS
