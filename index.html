@@ -121,7 +121,6 @@
 
     <div class="max-w-7xl mx-auto p-4 md:p-6 mt-2 space-y-4">
 
-        <!-- ========== TAB CONDUCTORES ========== -->
         <div id="tab-conductores" class="tab-content activo">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Cálculo de Corriente y Conductor</h2>
@@ -183,7 +182,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB BANDEJAS ========== -->
         <div id="tab-bandejas" class="tab-content">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Dimensionamiento de Bandejas Portacables</h2>
@@ -226,7 +224,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB TUBERÍAS ========== -->
         <div id="tab-tuberias" class="tab-content" oninput="calcTuberia()" onchange="calcTuberia()">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Cálculo de Tuberías Conduit</h2>
@@ -251,7 +248,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB CAPACITORES ========== -->
         <div id="tab-capacitores" class="tab-content" oninput="calculateTheory()" onchange="calculateTheory()">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Bancos de Capacitores y Pasos</h2>
@@ -314,7 +310,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB ARMÓNICOS ========== -->
         <div id="tab-armonicos" class="tab-content" oninput="calcFiltros()" onchange="calcFiltros()">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Filtros Activos de Armónicos</h2>
@@ -390,7 +385,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB TRANSFORMADORES ========== -->
         <div id="tab-transformadores" class="tab-content" oninput="calcTransformador()" onchange="calcTransformador()">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Cálculo de Taps en Transformadores</h2>
@@ -472,8 +466,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tx-taps-table" class="text-xs sm:text-sm">
-                                    <!-- Dynamic rows -->
-                                </tbody>
+                                    </tbody>
                             </table>
                         </div>
                     </div>
@@ -481,7 +474,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB CORTOCIRCUITO ========== -->
         <div id="tab-cortocircuito" class="tab-content" oninput="calcCortoCircuito()" onchange="calcCortoCircuito()">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Estudio de Cortocircuito (Punto a Punto)</h2>
@@ -529,7 +521,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB BARRAS ========== -->
         <div id="tab-barras" class="tab-content" oninput="calcBarras()">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Dimensionamiento de Barras de Cobre</h2>
@@ -597,7 +588,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB PUESTA A TIERRA ========== -->
         <div id="tab-protecciones" class="tab-content" oninput="calcTierra()">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Conductor de Puesta a Tierra (EGC)</h2>
@@ -621,7 +611,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB MOTORES ========== -->
         <div id="tab-motores" class="tab-content" oninput="calcMotor()" onchange="calcMotor()">
             <div class="mb-4">
                 <h2 class="text-xl font-black text-slate-800">Análisis de Motores AC</h2>
@@ -645,7 +634,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div class="glass-card p-6 flex flex-col justify-center">
                     <div id="mot-results" class="hidden space-y-4">
                         <div class="grid grid-cols-2 gap-4">
@@ -658,38 +646,40 @@
                                 <p class="text-3xl font-black text-amber-600 mt-2"><span id="res-mot-lra">0</span>A</p>
                             </div>
                         </div>
-
-                        <h3 class="text-[11px] font-black text-[#1e3a8a] uppercase tracking-widest border-b-2 border-blue-100 pb-2 mt-4">Ajustes de Unidad de Disparo</h3>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                                <p class="text-[10px] uppercase font-bold text-slate-500">Disparo Térmico</p>
-                                <p class="text-xs text-slate-400 mb-1">Protege cableado (115-125%)</p>
-                                <p class="text-xl font-black text-emerald-600" id="res-mot-termico">-</p>
+                        
+                        <h3 class="text-[11px] font-black text-[#1e3a8a] uppercase tracking-widest border-b-2 border-blue-100 pb-2 mt-4">Protección y Cableado</h3>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                <p class="text-[9px] uppercase font-bold text-slate-500">Breaker Principal</p>
+                                <p class="text-[10px] text-slate-400 mb-1">Curva Inversa (250%)</p>
+                                <p class="text-lg font-black text-[#1e3a8a]"><span id="res-mot-brk">0</span>A</p>
                             </div>
-                            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                                <p class="text-[10px] uppercase font-bold text-slate-500">Disparo Magnético</p>
-                                <p class="text-xs text-slate-400 mb-1">Inrush / Corto (~8x)</p>
-                                <p class="text-xl font-black text-red-600"><span id="res-mot-mag">0</span>A</p>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                <p class="text-[9px] uppercase font-bold text-slate-500">Ajuste Térmico</p>
+                                <p class="text-[10px] text-slate-400 mb-1">Sobrecarga (115-125%)</p>
+                                <p class="text-lg font-black text-emerald-600" id="res-mot-termico">-</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                                <p class="text-[9px] uppercase font-bold text-slate-500">Disparo Magnético</p>
+                                <p class="text-[10px] text-slate-400 mb-1">Inrush/Corto (~8x)</p>
+                                <p class="text-lg font-black text-red-600"><span id="res-mot-mag">0</span>A</p>
                             </div>
                         </div>
 
-                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between mt-2">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
                             <div>
-                                <p class="text-[10px] uppercase font-bold text-slate-500">Calibre Mínimo (75°C)</p>
+                                <p class="text-[10px] uppercase font-bold text-slate-500">Cable Mín. (75°C)</p>
                                 <p class="text-xs text-slate-400">125% FLA Continua</p>
                             </div>
                             <p class="text-lg font-black text-[#1e3a8a] text-right" id="res-mot-cbl">-</p>
                         </div>
                     </div>
-                    
-                    <div id="mot-placeholder" class="text-center text-slate-400 py-12">
-                        <p class="font-bold text-sm tracking-wide uppercase">Ingrese los datos de placa</p>
-                    </div>
+                    <div id="mot-placeholder" class="text-center text-slate-400 py-12"><p class="font-bold text-sm tracking-wide uppercase">Ingrese los datos de placa</p></div>
                 </div>
             </div>
         </div>
-        <!-- ========== TAB UPS ========== -->
+
         <div id="tab-respaldo" class="tab-content" oninput="calcUPS()">
             <div class="mb-4"><h2 class="text-xl font-black text-slate-800">Sistemas de Respaldo UPS</h2><p class="text-xs font-bold text-slate-400 mt-1">Dimensionamiento Básico</p></div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -717,7 +707,6 @@
             </div>
         </div>
 
-        <!-- ========== TAB ILUMINACIÓN ========== -->
         <div id="tab-iluminacion" class="tab-content" oninput="calcIluminacion()">
             <div class="mb-4"><h2 class="text-xl font-black text-slate-800">Cálculo de Iluminación de Interiores</h2><p class="text-xs font-bold text-slate-400 mt-1">Método de las Cavidades Zonales</p></div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1087,9 +1076,6 @@
         // ============================================================
         //  9. MOTORES
         // ============================================================
-        // ============================================================
-        //  9. MOTORES
-        // ============================================================
         function calcMotor() { 
             let hp = pSafe(document.getElementById('mot-hp').value) || 0;
             let v = pSafe(document.getElementById('mot-v').value) || 0;
@@ -1106,16 +1092,27 @@
                 document.getElementById('res-mot-lra').innerText = lra.toFixed(1); 
                 
                 // 2. Ajustes de la Unidad de Disparo
+                let breakerInv = getCommercialBreaker(fla * 2.5);
+                document.getElementById('res-mot-brk').innerText = breakerInv + "A";
+
                 let termicoMin = fla * 1.15;
                 let termicoMax = fla * 1.25;
                 document.getElementById('res-mot-termico').innerText = `${termicoMin.toFixed(1)}A - ${termicoMax.toFixed(1)}A`;
                 
-                let magTrip = fla * 8; // Multiplicador estándar NEC para soportar inrush
+                let magTrip = fla * 8; // Inrush Magnético (~8x FLA)
                 document.getElementById('res-mot-mag').innerText = magTrip.toFixed(0);
 
-                // 3. Conductor Mínimo
+                // 3. Conductor Mínimo (Cálculo Térmico)
                 let ampCable = fla * 1.25;
-                document.getElementById('res-mot-cbl').innerText = getBestGlobalAWGWithAmp(ampCable, 'a75').label; 
+                
+                // REGLA DE INGENIERÍA INDUSTRIAL:
+                // Forzamos un calibre mínimo de 12 AWG para fuerza en motores de 2 HP en adelante.
+                if (hp >= 2 && ampCable <= 20) {
+                    ampCable = 20.1; // Fuerza la selección del 12 AWG
+                }
+                
+                let wireObj = getBestGlobalAWGWithAmp(ampCable, 'a75');
+                document.getElementById('res-mot-cbl').innerText = wireObj.label; 
                 
                 // Mostrar resultados
                 document.getElementById('mot-placeholder').classList.add('hidden'); 
@@ -1183,7 +1180,7 @@
                 document.getElementById('res-tx-ipri').innerText = ipri.toFixed(1);
                 document.getElementById('res-tx-isec').innerText = isec.toFixed(1);
 
-                // --- LÓGICA DE SINCRONIZACIÓN BIDIURECCIONAL ---
+                // --- LÓGICA DE SINCRONIZACIÓN BIDIRECCIONAL ---
                 let varPercentActual = tapActualIndex * 2.5;
                 let tapVoltageActual = vpri * (1 + (varPercentActual / 100));
                 let vpriEffective = vpri;
