@@ -1030,7 +1030,6 @@
         // ============================================================
         const busB = [{s:"15 mm x 3 mm",a:180},{s:"20 mm x 5 mm",a:330},{s:"30 mm x 5 mm",a:450},{s:"40 mm x 5 mm",a:580},{s:"50 mm x 10 mm",a:1150},{s:"80 mm x 10 mm",a:1750},{s:"100 mm x 10 mm",a:2150}];
         function calcBarras() { 
-            // 1. Selección Automática
             let ib = pSafe(document.getElementById('manualCurrentBar').value); 
             if(ib > 0) { 
                 let id = ib / 0.9; 
@@ -1051,11 +1050,9 @@
                 document.getElementById('placeholderBar').classList.remove('hidden'); 
             } 
 
-            // 2. Cálculo Inverso (Ingreso Manual de Medidas)
             let bAncho = pSafe(document.getElementById('bar-ancho').value);
             let bEspesor = pSafe(document.getElementById('bar-espesor').value);
             if (bAncho > 0 && bEspesor > 0) {
-                // Fórmula empírica ajustada a la norma DIN 43671 para Cu a 35°C de incremento
                 let ampMax = 7 * bAncho * Math.pow(bEspesor, 0.5);
                 document.getElementById('res-bar-dim').innerText = bAncho + " x " + bEspesor;
                 document.getElementById('res-bar-amp').innerText = Math.round(ampMax);
@@ -1084,14 +1081,12 @@
             let kva_hp = pSafe(document.getElementById('mot-code').value) || 5.6; 
             
             if (hp > 0 && v > 0) { 
-                // 1. Corrientes Base
                 let fla = (hp * 746) / (1.732 * v * (eff/100) * fp); 
                 let lra = (kva_hp * hp * 1000) / (1.732 * v);
                 
                 document.getElementById('res-mot-fla').innerText = fla.toFixed(1); 
                 document.getElementById('res-mot-lra').innerText = lra.toFixed(1); 
                 
-                // 2. Ajustes de la Unidad de Disparo
                 let breakerInv = getCommercialBreaker(fla * 2.5);
                 document.getElementById('res-mot-brk').innerText = breakerInv + "A";
 
@@ -1099,26 +1094,20 @@
                 let termicoMax = fla * 1.25;
                 document.getElementById('res-mot-termico').innerText = `${termicoMin.toFixed(1)}A - ${termicoMax.toFixed(1)}A`;
                 
-                let magTrip = fla * 8; // Inrush Magnético (~8x FLA)
-                document.getElementById('res-mot-mag').innerText = magTrip.toFixed(0);
+                let magTrip = fla * 8; 
+                document.getElementById('res-mot-mag').innerText = magTrip.toFixed(0) + "A";
 
-                // 3. Conductor Mínimo (Cálculo Térmico)
                 let ampCable = fla * 1.25;
-                
-                // REGLA DE INGENIERÍA INDUSTRIAL:
-                // Forzamos un calibre mínimo de 12 AWG para fuerza en motores de 2 HP en adelante.
                 if (hp >= 2 && ampCable <= 20) {
-                    ampCable = 20.1; // Fuerza la selección del 12 AWG
+                    ampCable = 20.1; // Forzar mínimo de 12 AWG
                 }
                 
                 let wireObj = getBestGlobalAWGWithAmp(ampCable, 'a75');
                 document.getElementById('res-mot-cbl').innerText = wireObj.label; 
                 
-                // Mostrar resultados
                 document.getElementById('mot-placeholder').classList.add('hidden'); 
                 document.getElementById('mot-results').classList.remove('hidden'); 
             } else { 
-                // Ocultar resultados si faltan datos
                 document.getElementById('mot-placeholder').classList.remove('hidden'); 
                 document.getElementById('mot-results').classList.add('hidden'); 
             } 
@@ -1138,7 +1127,6 @@
         // 12. TRANSFORMADORES
         // ============================================================
         function calcTransformador(source) {
-            // Registrar qué input está usando el usuario (pri o sec)
             if (source) window.lastTxSource = source;
             if (!window.lastTxSource) window.lastTxSource = 'pri';
 
@@ -1152,7 +1140,6 @@
             let fases = parseInt(document.getElementById('tx-fases').value) || 3;
             let tapCount = parseInt(document.getElementById('tx-taps').value) || 5;
 
-            // Inicializar Select de Tap Actual dinámicamente
             let selectTap = document.getElementById('tx-tap-actual');
             if (parseInt(selectTap.dataset.count) !== tapCount) {
                 let currentVal = selectTap.value;
@@ -1166,7 +1153,7 @@
                     currentPos++;
                 }
                 if (Array.from(selectTap.options).some(o => o.value === currentVal)) selectTap.value = currentVal;
-                else selectTap.value = "0"; // Default Tap (Centro)
+                else selectTap.value = "0";
                 selectTap.dataset.count = tapCount;
             }
 
@@ -1180,21 +1167,17 @@
                 document.getElementById('res-tx-ipri').innerText = ipri.toFixed(1);
                 document.getElementById('res-tx-isec').innerText = isec.toFixed(1);
 
-                // --- LÓGICA DE SINCRONIZACIÓN BIDIRECCIONAL ---
                 let varPercentActual = tapActualIndex * 2.5;
                 let tapVoltageActual = vpri * (1 + (varPercentActual / 100));
                 let vpriEffective = vpri;
 
                 if (window.lastTxSource === 'sec' && vsecMed > 0) {
-                    // Calculamos el Primario a partir del Secundario Medido
                     vpriEffective = vsecMed * (tapVoltageActual / vsec);
-                    // Solo sobreescribimos el campo del primario si no estamos tipeando activamente en él
                     if (document.activeElement !== vmedField) {
                         vmedField.value = vpriEffective.toFixed(0);
                     }
                     document.getElementById('res-vpri-estimado').innerText = vpriEffective.toFixed(0);
                 } else {
-                    // Calculamos el Secundario a partir del Primario Medido
                     vpriEffective = vmed > 0 ? vmed : vpri;
                     if (document.activeElement !== vsecMedField) {
                         let calculatedSec = vpriEffective * (vsec / tapVoltageActual);
@@ -1203,7 +1186,6 @@
                     document.getElementById('res-vpri-estimado').innerText = vpriEffective.toFixed(0);
                 }
 
-                // --- CONSTRUIR LA TABLA ---
                 let tbody = document.getElementById('tx-taps-table');
                 tbody.innerHTML = '';
                 let maxSteps = Math.floor(tapCount / 2);
@@ -1211,15 +1193,10 @@
 
                 for (let i = maxSteps; i >= -maxSteps; i--) {
                     let varPercent = i * 2.5;
-                    
-                    // Voltaje de Placa del Tap Primario
                     let tapVoltage = vpri * (1 + (varPercent / 100));
-                    
-                    // Voltajes de salida REALES (usando el V. Primario Efectivo que determinamos arriba)
                     let realSecVoltageLL = (vpriEffective * vsec) / tapVoltage;
                     let realSecVoltageLN = (fases === 3) ? (realSecVoltageLL / 1.732) : (realSecVoltageLL / 2);
                     
-                    // Resaltar visualmente el Tap donde está posicionado el usuario
                     let bgClass = (i === tapActualIndex) ? 'bg-[#f0f9ff] font-bold border-l-4 border-[#1e3a8a] shadow-sm' : ((i === 0) ? 'bg-slate-50' : 'bg-white');
                     let varText = (i > 0) ? `+${varPercent.toFixed(1)}%` : `${varPercent.toFixed(1)}%`;
                     
@@ -1234,7 +1211,6 @@
                     `;
                     currentPos++;
                 }
-
             } else {
                 document.getElementById('res-tx-ipri').innerText = "0.0";
                 document.getElementById('res-tx-isec').innerText = "0.0";
@@ -1260,8 +1236,8 @@
             calcCaida(); calcTuberia(); calculateTheory(); calcFiltros(); calcCortoCircuito(); calcMotor(); calcTray(); calcTransformador(); calcBarras();
         }
 
-// ============================================================
-        //  EXPORTACIÓN
+        // ============================================================
+        //  EXPORTACIÓN (VERSIÓN CORREGIDA Y ROBUSTA)
         // ============================================================
         function exportarReporteUniversal(event) {
             const btn = event.currentTarget; 
@@ -1273,12 +1249,16 @@
             try {
                 const activeTab = document.querySelector('.tab-content.activo');
                 const titleEl = activeTab.querySelector('h2.text-xl');
-                const tabTitle = titleEl ? titleEl.innerText : "Reporte";
+                const tabTitle = titleEl ? titleEl.innerText : "Reporte Técnico";
+                
+                // Forzar subida arriba para evitar cortes en canvas
+                window.scrollTo(0, 0);
                 
                 const printContainer = document.createElement('div'); 
                 printContainer.id = 'solutronic-print-container';
-                // Mejor posicionamiento para asegurar que html2canvas lo capture
+                // Contenedor temporal escondido y fuera del scroll visual pero capturable
                 printContainer.className = 'absolute top-0 left-0 w-[1000px] bg-[#ffffff] text-slate-800 p-12 box-border z-[-999] opacity-0 pointer-events-none font-["Plus_Jakarta_Sans"]';
+                
                 const dateStr = new Date().toLocaleString('es-VE', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
                 let activeH2 = titleEl ? titleEl.innerText : tabTitle;
@@ -1309,10 +1289,13 @@
 
                 const contentClone = activeTab.cloneNode(true); 
                 contentClone.classList.remove('activo');
-                contentClone.style.display = 'block'; // Forzamos visibilidad para el render
+                contentClone.style.display = 'block'; 
                 
-                let h2 = contentClone.querySelector('h2.text-xl'); if(h2) h2.parentElement.remove();
-                let pDesc = contentClone.querySelector('p.text-xs.font-bold.text-slate-400.mt-1'); if(pDesc) pDesc.remove();
+                let h2 = contentClone.querySelector('h2.text-xl'); 
+                if(h2 && h2.parentElement) h2.parentElement.remove();
+                
+                let pDesc = contentClone.querySelector('p.text-xs.font-bold.text-slate-400.mt-1'); 
+                if(pDesc) pDesc.remove();
 
                 contentClone.querySelectorAll('.glass-card').forEach(c => { 
                     c.classList.remove('shadow-md', 'shadow-sm', 'bg-slate-900', 'text-white', 'border-none'); 
@@ -1323,18 +1306,22 @@
                     }
                 });
 
-                // Corrección Clave: Leer valores desde los inputs ORIGINALES
-                const originalInputs = activeTab.querySelectorAll('input, select');
-                contentClone.querySelectorAll('input, select').forEach((clone, i) => { 
+                // Corrección Crítica: Lectura segura de Inputs Originales a Clones
+                const originalInputs = Array.from(activeTab.querySelectorAll('input, select, textarea'));
+                const clonedInputs = Array.from(contentClone.querySelectorAll('input, select, textarea'));
+                
+                clonedInputs.forEach((clone, i) => { 
                     const orig = originalInputs[i]; 
-                    if (orig.type === 'checkbox') { 
+                    if (!orig) return; // Validación extra
+                    
+                    if (orig.type === 'checkbox' || orig.type === 'radio') { 
                         if(clone.parentElement) clone.parentElement.style.display = 'none'; 
                     } else { 
-                        let v = orig.tagName === 'SELECT' ? (orig.options[orig.selectedIndex]?.text || '-') : (orig.value || '-'); 
+                        let val = orig.tagName === 'SELECT' ? (orig.options[orig.selectedIndex]?.text || '-') : (orig.value || '-'); 
                         let span = document.createElement('div'); 
                         span.className = 'w-full py-2 px-4 bg-[#f8fafc] border border-slate-200 rounded-xl text-base font-black text-[#1e3a8a] text-center shadow-sm block mt-1'; 
-                        span.innerText = v; 
-                        clone.parentNode.replaceChild(span, clone); 
+                        span.innerText = val; 
+                        if(clone.parentNode) clone.parentNode.replaceChild(span, clone); 
                     }
                 });
 
@@ -1357,7 +1344,7 @@
                 printContainer.querySelector('#print-body').appendChild(contentClone); 
                 document.body.appendChild(printContainer);
                 
-                // Pequeño retardo para asegurar que el DOM cargó el nodo antes de la foto
+                // Retraso para que el navegador construya el DOM correctamente antes de la foto
                 setTimeout(() => {
                     html2canvas(printContainer, { 
                         scale: 2, 
@@ -1379,7 +1366,7 @@
                         btn.disabled = false; 
                         document.body.removeChild(printContainer); 
                     });
-                }, 100);
+                }, 150);
 
             } catch (error) {
                 console.error("Error crítico de exportación:", error);
