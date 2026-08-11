@@ -1255,14 +1255,12 @@
                     const pDescEl = activeTab.querySelector('p.text-xs');
                     const activeP = pDescEl ? pDescEl.innerText : '';
 
-                    // Crear contenedor usando un enfoque amigable para html2canvas en móviles
                     const printContainer = document.createElement('div');
                     printContainer.id = 'solutronic-print-container';
                     printContainer.style.cssText = 'position: absolute; top: -9999px; left: -9999px; width: 1000px; background-color: #ffffff; padding: 48px; box-sizing: border-box; font-family: "Plus Jakarta Sans", sans-serif;';
                     
                     const dateStr = new Date().toLocaleString('es-VE', { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-                    // Cabecera HTML estricto
                     const headerHtml = `
                         <div style="margin-bottom: 24px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
@@ -1281,15 +1279,12 @@
                         </div>
                     `;
 
-                    // Clonar contenido
                     const contentClone = activeTab.cloneNode(true);
                     contentClone.style.display = 'block';
 
-                    // Limpiar encabezados originales en el clon
                     const h2 = contentClone.querySelector('h2.text-xl');
                     if (h2 && h2.parentElement) h2.parentElement.remove();
 
-                    // Reemplazar inputs asegurando iteración con Array.from
                     const originalInputs = Array.from(activeTab.querySelectorAll('input, select'));
                     const clonedInputs = Array.from(contentClone.querySelectorAll('input, select'));
                     
@@ -1307,19 +1302,18 @@
                         }
                     });
 
-                    // Limpiar botones e instrucciones
                     ['button', '.no-print', '#sc-placeholder', '#mot-placeholder', '#afq-placeholder', '#placeholderBar'].forEach(s => {
                         contentClone.querySelectorAll(s).forEach(e => e && e.remove());
                     });
 
-                    // Forzar fondos blancos y bordes grises (eliminar tarjetas de cristal y fondos pesados)
                     contentClone.querySelectorAll('.glass-card').forEach(c => {
                         c.classList.remove('shadow-md', 'shadow-sm');
                         c.classList.add('bg-white', 'border-2', 'border-slate-100', 'p-6');
                         c.style.backgroundColor = '#ffffff';
                     });
 
-                    contentClone.querySelectorAll('.bg-fuchsia-600, .bg-indigo-600, .bg-[#1e3a8a], .bg-red-600, .bg-emerald-50').forEach(box => {
+                    // Corrección del selector: Se escapan correctamente los caracteres especiales del color hexadecimal
+                    contentClone.querySelectorAll('.bg-fuchsia-600, .bg-indigo-600, .bg-\\[\\#1e3a8a\\], .bg-red-600, .bg-emerald-50').forEach(box => {
                         box.className = 'bg-slate-50 border-2 border-slate-200 rounded-2xl p-5 text-slate-800';
                         box.querySelectorAll('*').forEach(el => {
                             el.classList.remove('text-fuchsia-200', 'text-fuchsia-100', 'text-indigo-200', 'text-indigo-100', 'text-blue-200', 'text-blue-300', 'text-red-200', 'text-red-100', 'text-white');
@@ -1327,7 +1321,6 @@
                         });
                     });
 
-                    // Footer
                     const footerHtml = `
                         <div style="margin-top: 48px; padding-top: 32px; border-top: 2px solid #f1f5f9; text-align: center;">
                             <p style="font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.15em;">Generado automáticamente por Solutronic Suite</p>
@@ -1340,10 +1333,8 @@
 
                     document.body.appendChild(printContainer);
 
-                    // Desplazar arriba antes del cálculo ayuda a evitar recortes en la imagen
                     window.scrollTo(0, 0);
 
-                    // Esperar 300ms permite al navegador móvil aplicar todos los estilos al DOM escondido
                     setTimeout(() => {
                         html2canvas(printContainer, {
                             scale: 2,
